@@ -9,6 +9,11 @@ import (
 	"github.com/google/go-github/github"
 )
 
+const (
+	// ShortFlag is the cli flag that indicates whether to show short or long SHAs
+	ShortFlag = "short"
+)
+
 // GetShas is the CLI action for getting github shas of all of the Deis Workflow repos
 func GetShas(c *cli.Context) {
 	ghClient := github.NewClient(nil)
@@ -33,7 +38,10 @@ func GetShas(c *cli.Context) {
 			}
 			repoCommit := repoCommits[0]
 			sha := *repoCommit.SHA
-			ch <- fmt.Sprintf("%s: %s\n", repo, sha[0:7])
+			if c.Bool(ShortFlag) {
+				sha = sha[:7]
+			}
+			ch <- fmt.Sprintf("%s: %s\n", repo, sha)
 		}(repo)
 		go func() {
 			outCh <- <-ch
