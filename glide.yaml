@@ -4,3 +4,4 @@ import:
   subpackages:
   - github
 - package: github.com/codegangsta/cli
+- package: golang.org/x/oauth2

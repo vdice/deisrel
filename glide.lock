@@ -1,5 +1,5 @@
-hash: b0c56a1a6e50b2eab2a4b983b9505682e70891aedaee3197065e310d5466e6b4
-updated: 2016-04-14T15:09:31.838164037-07:00
+hash: 1217f6e580ab2b289d4cfd83313f1469d8b8e60ec3b7fe3808630d18739dabe6
+updated: 2016-04-14T15:42:39.034803362-07:00
 imports:
 - name: github.com/codegangsta/cli
   version: 71f57d300dd6a780ac1856c005c4b518cfd498ec
@@ -7,4 +7,10 @@ imports:
   version: f8cebc8ad645ff0e5df4ffc1059f644c3cb99b1c
   subpackages:
   - github
+- name: github.com/google/go-querystring
+  version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
+  subpackages:
+  - query
+- name: golang.org/x/oauth2
+  version: b0e2337fe6ec0c637fa4f123268b972f334504eb
 devImports: []
