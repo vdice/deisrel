@@ -1,0 +1,118 @@
+package actions
+
+import (
+	"text/template"
+)
+
+const (
+	generateParamsTplStr = `#helm:generate helm template -o $HELM_GENERATE_DIR/manifests/deis-objectstorage-secret.yaml -d $HELM_GENERATE_FILE $HELM_GENERATE_DIR/tpl/deis-objectstorage-secret.yaml
+#
+# This is the main configuration file for Deis object storage. The values in
+# this file are passed into the appropriate services so that they can configure
+# themselves for persisting data in object storage.
+#
+# In general, all object storage credentials must be able to read and write to
+# the container or bucket they are configured to use.
+#
+# When you change values in this file, make sure to re-run 'helm generate'
+# on this chart.
+
+# Set the storage backend
+#
+# Valid values are:
+# - filesystem: Store persistent data on ephemeral disk
+# - s3: Store persistent data in AWS S3 (configure in S3 section)
+# - azure: Store persistent data in Azure's object storage
+# - gcs: Store persistent data in Google Cloud Storage
+# - minio: Store persistent data on in-cluster Minio server
+storage = "minio"
+
+[s3]
+accesskey = "YOUR KEY HERE"
+secretkey = "YOUR SECRET HERE"
+# Any S3 region
+region = "us-west-1"
+# Your buckets.
+registry_bucket = "your-registry-bucket-name"
+database_bucket = "your-database-bucket-name"
+builder_bucket = "your-builder-bucket-name"
+
+[azure]
+accountname = "YOUR ACCOUNT NAME"
+accountkey = "YOUR ACCOUNT KEY"
+registry_container = "your-registry-container-name"
+database_container = "your-database-container-name"
+builder_container = "your-builder-container-name"
+
+[gcs]
+# key_json is expanded into a JSON file on the remote server. It must be
+# well-formatted JSON data.
+key_json = '''Paste JSON data here.'''
+registry_bucket = "your-regsitry-bucket-name"
+database_bucket = "your-database-bucket-name"
+builder_bucket = "your-builder-bucket-name"
+
+[minio]
+org = "{{.Minio.Org}}"
+pullPolicy = "{{.Minio.PullPolicy}}"
+dockerTag = "{{.Minio.DockerTag}}"
+
+[builder]
+org = "{{.Builder.Org}}"
+pullPolicy = "{{.Builder.PullPolicy}}"
+dockerTag = "{{.Builder.DockerTag}}"
+
+[slugbuilder]
+org = "{{.SlugBuiler.Org}}"
+pullPolicy = "{{.SlugBuilder.PullPolicy}}"
+dockerTag = "{{.SlugBuilder.DockerTag}}"
+
+[dockerbuilder]
+org = "{{.DockerBuilder.Org}}"
+pullPolicy = "{{.DockerBuilder.PullPolicy}}"
+dockerTag = "{{.DockerBuilder.DockerTag}}"
+
+[controller]
+org = "{{.Controller.Org}}"
+pullPolicy = "{{.Controller.PullPolicy}}"
+dockerTag = "{{.Controller.DockerTag}}"
+
+[slugrunner]
+org = "{{.SlugRunner.Org}}"
+pullPolicy = "{{.SlugRunner.PullPolicy}}"
+dockerTag = "{{.SlugRunner.DockerTag}}"
+
+[database]
+org = "{{.Database.Org}}"
+pullPolicy = "{{.Database.PullPolicy}}"
+dockerTag = "{{.Database.DockerTag}}"
+
+[registry]
+org = "{{.Registry.Org}}"
+pullPolicy = "{{.Registry.PullPolicy}}"
+dockerTag = "{{.Registry.DockerTag}}"
+
+[workflowManager]
+org = "{{.WorkflowManager.Org}}"
+pullPolicy = "{{.WorkflowManager.PullPolicy}}"
+dockerTag = "{{.WorkflowManager.DockerTag}}"
+
+[logger]
+org = "{{.Logger.Org}}"
+pullPolicy = "{{.Logger.PullPolicy}}"
+dockerTag = "{{.Logger.DockerTag}}"
+
+[router]
+org = "{{.Router.Org}}"
+pullPolicy = "{{.Router.PullPolicy}}"
+dockerTag = "{{.Router.DockerTag}}"
+
+[fluentd]
+org = "{{.FluentD.Org}}"
+pullPolicy = "{{.FluentD.PullPolicy}}"
+dockerTag = "{{.FluentD.DockerTag}}"`
+)
+
+var (
+	generateParamsTpl = template.Must(template.New("generateParams").Parse(generateParamsTplStr))
+)

@@ -33,6 +33,27 @@ func main() {
 				},
 			},
 		},
+		cli.Command{
+			Name:   "helm-params",
+			Action: actions.HelmParams(ghClient),
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  actions.TagFlag,
+					Value: "",
+					Usage: "The Docker tag to apply for all images. If empty, defaults to 'git-$SHORT_SHA' for each respective component",
+				},
+				cli.StringFlag{
+					Name:  actions.PullPolicyFlag,
+					Value: "IfNotPresent",
+					Usage: "The 'imagePullPolicy' value to set on each image",
+				},
+				cli.StringFlag{
+					Name:  actions.OrgFlag,
+					Value: "deis",
+					Usage: "The docker repository organization to set on each image",
+				},
+			},
+		},
 	}
 
 	app.Run(os.Args)
