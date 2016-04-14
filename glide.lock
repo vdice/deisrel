@@ -1,0 +1,10 @@
+hash: b0c56a1a6e50b2eab2a4b983b9505682e70891aedaee3197065e310d5466e6b4
+updated: 2016-04-14T15:09:31.838164037-07:00
+imports:
+- name: github.com/codegangsta/cli
+  version: 71f57d300dd6a780ac1856c005c4b518cfd498ec
+- name: github.com/google/go-github
+  version: f8cebc8ad645ff0e5df4ffc1059f644c3cb99b1c
+  subpackages:
+  - github
+devImports: []
