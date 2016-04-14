@@ -7,14 +7,22 @@ import (
 	"github.com/google/go-github/github"
 )
 
-func getShas(ghClient *github.Client, repos []string, transform func(string) string) ([]string, error) {
-	outCh := make(chan string)
+type repoAndSha struct {
+	repoName string
+	sha      string
+}
+
+func noTransform(s string) string       { return s }
+func shortShaTransform(s string) string { return s[:7] }
+
+func getShas(ghClient *github.Client, repos []string, transform func(string) string) ([]repoAndSha, error) {
+	outCh := make(chan repoAndSha)
 	errCh := make(chan error)
 	doneCh := make(chan struct{})
 	var wg sync.WaitGroup
 	for _, repo := range repoNames {
 		wg.Add(1)
-		ch := make(chan string)
+		ch := make(chan repoAndSha)
 		ech := make(chan error)
 		go func(repo string) {
 			defer wg.Done()
@@ -34,7 +42,7 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 			}
 			repoCommit := repoCommits[0]
 			sha := transform(*repoCommit.SHA)
-			ch <- fmt.Sprintf("%s: %s\n", repo, sha)
+			ch <- repoAndSha{repoName: repo, sha: sha}
 		}(repo)
 		go func() {
 			select {
@@ -50,7 +58,7 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 		close(doneCh)
 	}()
 
-	ret := []string{}
+	ret := []repoAndSha{}
 	for {
 		select {
 		case <-doneCh:

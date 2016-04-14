@@ -34,8 +34,7 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:   "helm-params",
-			Action: actions.HelmParams(ghClient),
+			Name: "helm-params",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  actions.TagFlag,
@@ -51,6 +50,16 @@ func main() {
 					Name:  actions.OrgFlag,
 					Value: "deis",
 					Usage: "The docker repository organization to set on each image",
+				},
+			},
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "e2e",
+					Action: actions.HelmGenerateE2E(ghClient),
+				},
+				cli.Command{
+					Name:   "workflow",
+					Action: actions.HelmGenerateWorkflow(ghClient),
 				},
 			},
 		},
