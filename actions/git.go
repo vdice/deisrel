@@ -70,3 +70,13 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 		}
 	}
 }
+
+func getLastTag(ghClient *github.Client, repos []string) (map[string]*github.RepositoryTag, error) {
+	for _, repo := range repos {
+		repos, _, err := ghClient.Repositories.ListTags("deis", repo, nil)
+		if err != nil {
+			return make(map[string]*github.RepositoryTag), err
+		}
+	}
+	return make(map[string]*github.RepositoryTag), nil
+}
