@@ -24,12 +24,17 @@ func main() {
 	app.Usage = "Utilities for releasing a new Deis version"
 	app.Commands = []cli.Command{
 		cli.Command{
-			Name:   "shas",
-			Action: actions.GetShas(ghClient),
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  actions.ShortFlag,
-					Usage: "Whether to show short 7 character shas",
+			Name: "git",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "shas",
+					Action: actions.GetShas(ghClient),
+					Flags: []cli.Flag{
+						cli.BoolFlag{
+							Name:  actions.ShortFlag,
+							Usage: "Whether to show short 7 character shas",
+						},
+					},
 				},
 			},
 		},
