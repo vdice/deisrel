@@ -20,7 +20,7 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 	errCh := make(chan error)
 	doneCh := make(chan struct{})
 	var wg sync.WaitGroup
-	for _, repo := range repoNames {
+	for _, repo := range repos {
 		wg.Add(1)
 		ch := make(chan repoAndSha)
 		ech := make(chan error)

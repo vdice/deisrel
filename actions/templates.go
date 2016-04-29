@@ -6,17 +6,8 @@ type genParamsComponentAttrs struct {
 	PullPolicy string
 }
 
-type genParamsComponentList struct {
-	Minio           genParamsComponentAttrs
-	Builder         genParamsComponentAttrs
-	SlugBuilder     genParamsComponentAttrs
-	DockerBuilder   genParamsComponentAttrs
-	Controller      genParamsComponentAttrs
-	SlugRunner      genParamsComponentAttrs
-	Database        genParamsComponentAttrs
-	Registry        genParamsComponentAttrs
-	WorkflowManager genParamsComponentAttrs
-	Logger          genParamsComponentAttrs
-	Router          genParamsComponentAttrs
-	FluentD         genParamsComponentAttrs
+type genParamsComponentMap map[string]genParamsComponentAttrs
+
+func createParamsComponentMap() genParamsComponentMap {
+	return genParamsComponentMap(map[string]genParamsComponentAttrs{})
 }
