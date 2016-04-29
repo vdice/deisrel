@@ -25,7 +25,6 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 		ch := make(chan repoAndSha)
 		ech := make(chan error)
 		go func(repo string) {
-			defer wg.Done()
 			repoCommits, _, err := ghClient.Repositories.ListCommits("deis", repo, &github.CommitsListOptions{
 				ListOptions: github.ListOptions{
 					Page:    1,
@@ -45,6 +44,7 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 			ch <- repoAndSha{repoName: repo, sha: sha}
 		}(repo)
 		go func() {
+			defer wg.Done()
 			select {
 			case e := <-ech:
 				errCh <- e
@@ -73,7 +73,7 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 
 func getLastTag(ghClient *github.Client, repos []string) (map[string]*github.RepositoryTag, error) {
 	for _, repo := range repos {
-		repos, _, err := ghClient.Repositories.ListTags("deis", repo, nil)
+		_, _, err := ghClient.Repositories.ListTags("deis", repo, nil)
 		if err != nil {
 			return make(map[string]*github.RepositoryTag), err
 		}
