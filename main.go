@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/arschles/deisrel/actions"
+	"github.com/deis/deisrel/actions"
 	"github.com/codegangsta/cli"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
