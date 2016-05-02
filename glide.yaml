@@ -1,4 +1,4 @@
-package: github.com/arschles/deisrel
+package: github.com/deis/deisrel
 import:
 - package: github.com/google/go-github
   subpackages:
