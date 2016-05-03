@@ -5,6 +5,7 @@ import (
 )
 
 const (
+	// TODO: https://github.com/deis/deisrel/issues/11
 	generateParamsTplStr = `#helm:generate helm template -o $HELM_GENERATE_DIR/manifests/deis-objectstorage-secret.yaml -d $HELM_GENERATE_FILE $HELM_GENERATE_DIR/tpl/deis-objectstorage-secret.yaml
 #
 # This is the main configuration file for Deis object storage. The values in
@@ -48,71 +49,87 @@ builder_container = "your-builder-container-name"
 # key_json is expanded into a JSON file on the remote server. It must be
 # well-formatted JSON data.
 key_json = '''Paste JSON data here.'''
-registry_bucket = "your-regsitry-bucket-name"
+registry_bucket = "your-registry-bucket-name"
 database_bucket = "your-database-bucket-name"
 builder_bucket = "your-builder-bucket-name"
 
 [minio]
 org = "{{.Minio.Org}}"
 pullPolicy = "{{.Minio.PullPolicy}}"
-dockerTag = "{{.Minio.DockerTag}}"
+dockerTag = "{{.Minio.Tag}}"
 
 [builder]
 org = "{{.Builder.Org}}"
 pullPolicy = "{{.Builder.PullPolicy}}"
-dockerTag = "{{.Builder.DockerTag}}"
+dockerTag = "{{.Builder.Tag}}"
 
 [slugbuilder]
-org = "{{.SlugBuiler.Org}}"
+org = "{{.SlugBuilder.Org}}"
 pullPolicy = "{{.SlugBuilder.PullPolicy}}"
-dockerTag = "{{.SlugBuilder.DockerTag}}"
+dockerTag = "{{.SlugBuilder.Tag}}"
 
 [dockerbuilder]
 org = "{{.DockerBuilder.Org}}"
 pullPolicy = "{{.DockerBuilder.PullPolicy}}"
-dockerTag = "{{.DockerBuilder.DockerTag}}"
+dockerTag = "{{.DockerBuilder.Tag}}"
 
 [controller]
 org = "{{.Controller.Org}}"
 pullPolicy = "{{.Controller.PullPolicy}}"
-dockerTag = "{{.Controller.DockerTag}}"
+dockerTag = "{{.Controller.Tag}}"
 
 [slugrunner]
 org = "{{.SlugRunner.Org}}"
 pullPolicy = "{{.SlugRunner.PullPolicy}}"
-dockerTag = "{{.SlugRunner.DockerTag}}"
+dockerTag = "{{.SlugRunner.Tag}}"
 
 [database]
 org = "{{.Database.Org}}"
 pullPolicy = "{{.Database.PullPolicy}}"
-dockerTag = "{{.Database.DockerTag}}"
+dockerTag = "{{.Database.Tag}}"
 
 [registry]
 org = "{{.Registry.Org}}"
 pullPolicy = "{{.Registry.PullPolicy}}"
-dockerTag = "{{.Registry.DockerTag}}"
+dockerTag = "{{.Registry.Tag}}"
 
 [workflowManager]
 org = "{{.WorkflowManager.Org}}"
 pullPolicy = "{{.WorkflowManager.PullPolicy}}"
-dockerTag = "{{.WorkflowManager.DockerTag}}"
+dockerTag = "{{.WorkflowManager.Tag}}"
 
 [logger]
 org = "{{.Logger.Org}}"
 pullPolicy = "{{.Logger.PullPolicy}}"
-dockerTag = "{{.Logger.DockerTag}}"
+dockerTag = "{{.Logger.Tag}}"
 
 [router]
 org = "{{.Router.Org}}"
 pullPolicy = "{{.Router.PullPolicy}}"
-dockerTag = "{{.Router.DockerTag}}"
+dockerTag = "{{.Router.Tag}}"
 
 [fluentd]
 org = "{{.FluentD.Org}}"
 pullPolicy = "{{.FluentD.PullPolicy}}"
-dockerTag = "{{.FluentD.DockerTag}}"`
+dockerTag = "{{.FluentD.Tag}}"
+
+[grafana]
+org = "{{.Grafana.Org}}"
+pullPolicy = "{{.Grafana.PullPolicy}}"
+dockerTag = "{{.Grafana.Tag}}"
+
+[influxdb]
+org = "{{.InfluxDB.Org}}"
+pullPolicy = "{{.InfluxDB.PullPolicy}}"
+dockerTag = "{{.InfluxDB.Tag}}"
+
+[telegraf]
+org = "{{.Telegraf.Org}}"
+pullPolicy = "{{.Telegraf.PullPolicy}}"
+dockerTag = "{{.Telegraf.Tag}}"
+`
 )
 
 var (
-	generateParamsTpl = template.Must(template.New("generateParams").Parse(generateParamsTplStr))
+	generateParamsTpl = template.Must(template.New("generateParamsTpl").Parse(generateParamsTplStr))
 )
