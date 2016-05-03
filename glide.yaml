@@ -5,3 +5,5 @@ import:
   - github
 - package: github.com/codegangsta/cli
 - package: golang.org/x/oauth2
+- package: github.com/arschles/sys
+- package: github.com/arschles/assert

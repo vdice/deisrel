@@ -1,5 +1,16 @@
 package actions
 
+import (
+	"log"
+	"os"
+	"path/filepath"
+)
+
+type releaseName struct {
+	Full  string
+	Short string
+}
+
 var (
 	// TODO: https://github.com/deis/deisrel/issues/12
 	repoToComponentNames = map[string][]string{
@@ -22,6 +33,11 @@ var (
 
 	repoNames      = getRepoNames(repoToComponentNames)
 	componentNames = getComponentNames(repoToComponentNames)
+	deisRelease    = releaseName{
+		Full:  os.Getenv("DEIS_RELEASE"),
+		Short: os.Getenv("DEIS_RELEASE_SHORT"),
+	}
+	stagingPath = getFullPath("staging")
 )
 
 func getRepoNames(repoToComponentNames map[string][]string) []string {
@@ -40,4 +56,12 @@ func getComponentNames(repoToComponentNames map[string][]string) []string {
 		}
 	}
 	return ret
+}
+
+func getFullPath(dirName string) string {
+	currentWorkingDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Error getting current working dir (%s)", err)
+	}
+	return filepath.Join(currentWorkingDir, dirName)
 }
