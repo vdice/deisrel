@@ -22,5 +22,6 @@ test:
 build-cli-cross:
 	${DEV_ENV_CMD} gox -output="bin/${SHORT_NAME}-{{.OS}}-{{.Arch}}"
 
+
 build-cli:
 	go build -o deisrel ./actions
