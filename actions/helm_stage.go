@@ -84,9 +84,6 @@ func stageFiles(fs fileSys, ghFiles []ghFile, stagingDir string) {
 		if _, err := io.Copy(f, readCloser); err != nil {
 			log.Fatalf("Error writing contents to file %s (%s)", localFilePath, err)
 		}
-		if err := f.Sync(); err != nil {
-			log.Fatalf("Error flushing writes to stable storage (%s)", err)
-		}
 		log.Printf("File %s staged in '%s'", ghFile.FileName, stagingDir)
 		defer readCloser.Close()
 		defer f.Close()

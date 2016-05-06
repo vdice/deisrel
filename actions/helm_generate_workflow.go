@@ -2,7 +2,6 @@ package actions
 
 import (
 	"log"
-	"os"
 
 	"github.com/codegangsta/cli"
 	"github.com/google/go-github/github"
@@ -11,7 +10,9 @@ import (
 // HelmGenerateWorkflow is the cli handler for generating a helm parameters file for deis-workflow
 func HelmGenerateWorkflow(ghClient *github.Client) func(*cli.Context) {
 	return func(c *cli.Context) {
-
+		const (
+			chartDir = "workflow-dev"
+		)
 		defaultParamsComponentAttrs := genParamsComponentAttrs{
 			Org:        c.GlobalString(OrgFlag),
 			PullPolicy: c.GlobalString(PullPolicyFlag),
@@ -43,7 +44,8 @@ func HelmGenerateWorkflow(ghClient *github.Client) func(*cli.Context) {
 			}
 		}
 
-		if err := generateParamsTpl.Execute(os.Stdout, paramsComponentMap); err != nil {
+		shouldStage := c.GlobalBool(StageFlag)
+		if err := generateParams(shouldStage, ourFS, chartDir, paramsComponentMap); err != nil {
 			log.Fatalf("Error outputting the workflow values file (%s)", err)
 		}
 	}

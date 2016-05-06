@@ -3,7 +3,6 @@ package testutil
 import (
 	"log"
 	"os"
-	"path/filepath"
 )
 
 var goPath string
@@ -13,9 +12,4 @@ func init() {
 	if goPath == "" {
 		log.Fatalf("GOPATH not set")
 	}
-}
-
-// TestDataDir returns the fully qualified path to the testdata/ directory
-func TestDataDir() string {
-	return filepath.Join(goPath, "src", "github.com", "deis", "deisrel", "testdata")
 }
