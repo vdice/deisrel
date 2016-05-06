@@ -1,10 +1,15 @@
 package actions
 
 import (
+	"bufio"
 	"fmt"
 	"io"
+	"log"
+	"os"
+	"strings"
 	"sync"
 
+	"github.com/codegangsta/cli"
 	"github.com/google/go-github/github"
 )
 
@@ -88,4 +93,132 @@ func downloadContents(ghClient *github.Client, org, repo, filepath string, opt *
 		return nil, err
 	}
 	return rc, nil
+}
+
+func GitTag(client *github.Client) func(c *cli.Context) {
+	return func(c *cli.Context) {
+		tag := c.Args().Get(0)
+		shaFilepath := c.String(ShaFilepathFlag)
+
+		if tag == "" {
+			log.Fatal("Usage: deisrel git tag <options> <tag>")
+		}
+
+		repos, err := getShas(client, repoNames, noTransform)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if shaFilepath != "" {
+			// update the latest shas with the shas in shaFilepath
+			reposFromFile, err := getShasFromFilepath(shaFilepath)
+			if err != nil {
+				log.Fatal(err)
+			}
+			// merge the latest shas with the shas in shaFilePath, since the file may only
+			// specify a subset of the latest repos
+			for _, repo := range repos {
+				for _, updatedRepo := range reposFromFile {
+					if updatedRepo.repoName == repo.repoName {
+						repo.sha = updatedRepo.sha
+					}
+				}
+			}
+		}
+		fmt.Println("=== Repos")
+		for _, repo := range repos {
+			fmt.Printf("%s: %s\n", repo.repoName, repo.sha)
+		}
+		var ok bool = true
+		if !c.Bool(YesFlag) {
+			var err error
+			ok, err = prompt()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		if ok {
+			if err := createGitTag(client, repos, tag); err != nil {
+				log.Fatal(fmt.Errorf("could create tag %s: %v", tag, err))
+			}
+		}
+	}
+}
+
+func prompt() (bool, error) {
+	acceptableAnswers := []string{
+		"y",
+		"yes",
+		"yea",
+		"yep",
+		"sure",
+		"ok",
+		"okey-dokey",
+		"affirmative",
+		"aye aye, captain",
+		"roger",
+		"fo' shizzle",
+		"totally",
+		"oui",
+		"sí",
+		"`ae",
+	}
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Is this okay? (y/N) ")
+	text, err := reader.ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+	for _, ans := range acceptableAnswers {
+		if strings.TrimSpace(strings.ToLower(text)) == ans {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func getShasFromFilepath(path string) ([]repoAndSha, error) {
+	ret := []repoAndSha{}
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("could not open %s: %s", path, err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.ContainsRune(line, '=') {
+			repoParts := strings.SplitN(line, "=", 2)
+			ret = append(ret, repoAndSha{
+				repoName: repoParts[0],
+				sha:      repoParts[1],
+			})
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("failed reading %s: %s", path, err)
+	}
+	return ret, nil
+}
+
+// createGitTag tags each repository at the given SHA with the tag supplied.
+func createGitTag(client *github.Client, repos []repoAndSha, tag string) error {
+	for _, repo := range repos {
+		ref := &github.Reference{
+			Ref: github.String("refs/tags/" + tag),
+			Object: &github.GitObject{
+				SHA: github.String(repo.sha),
+			},
+		}
+		_, _, err := client.Git.CreateRef("deis", repo.repoName, ref)
+		// GitHub returns HTTP 422 Unprocessable Entity when a field is invalid,
+		// such as when a reference already exists or the sha does not exist
+		// https://developer.github.com/v3/#client-errors
+		if err != nil && !strings.Contains(err.Error(), "Reference already exists") {
+			return err
+		}
+		fmt.Printf("%s: created tag %s\n", repo.repoName, tag)
+	}
+	return nil
 }

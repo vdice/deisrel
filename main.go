@@ -36,10 +36,25 @@ func main() {
 						},
 					},
 				},
+				cli.Command{
+					Name:   "tag",
+					Action: actions.GitTag(ghClient),
+					Flags: []cli.Flag{
+						cli.BoolFlag{
+							Name:  actions.YesFlag,
+							Usage: "If true, skip the prompt requesting permission",
+						},
+						cli.StringFlag{
+							Name:  actions.ShaFilepathFlag,
+							Value: "",
+							Usage: "the file path which to read in the shas to release",
+						},
+					},
+				},
 			},
 		},
 		cli.Command{
-			Name: "generate-changelog",
+			Name:   "generate-changelog",
 			Action: actions.GenerateChangelog(ghClient, os.Stdout),
 		},
 		cli.Command{

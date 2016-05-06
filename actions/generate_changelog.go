@@ -42,12 +42,12 @@ const changelogTpl string = `{{.OldRelease}} -> {{.NewRelease}}
 var changelogTemplate *template.Template = template.Must(template.New("changelog").Parse(changelogTpl))
 
 type Changelog struct {
-	OldRelease string
-	NewRelease string
-	Features []string
-	Fixes []string
+	OldRelease    string
+	NewRelease    string
+	Features      []string
+	Fixes         []string
 	Documentation []string
-	Maintenance []string
+	Maintenance   []string
 }
 
 // GenerateChangelog is the CLI action for creating an aggregated changelog from all of the Deis Workflow repos.

@@ -8,15 +8,6 @@ import (
 	"github.com/google/go-github/github"
 )
 
-const (
-	// TagFlag represents the '-tag' flag
-	TagFlag = "tag"
-	// PullPolicyFlag represents the '-pull-policy' flag
-	PullPolicyFlag = "pull-policy"
-	// OrgFlag represents the '-org' flag
-	OrgFlag = "org"
-)
-
 // HelmGenerateE2E is the cli handler for generating a helm parameters file for deis-e2e
 func HelmGenerateE2E(ghClient *github.Client) func(*cli.Context) {
 	return func(c *cli.Context) {
