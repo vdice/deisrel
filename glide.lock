@@ -1,6 +1,10 @@
-hash: a3bf6a4abc90d31415892ff8484e76893bd2c188f944a0d5b4aa563391398593
-updated: 2016-05-05T14:38:20.90346103-07:00
+hash: 89f5712aae4306252b5bc07d03faf039930b94e94ab055cd7910b83403979130
+updated: 2016-05-06T15:55:10.584119517-06:00
 imports:
+- name: github.com/arschles/assert
+  version: 5c22e2eba944d89ddd5c81b2c4175e64ee828503
+- name: github.com/arschles/sys
+  version: e3846966612e54a99344e458d2581c65fed61d71
 - name: github.com/codegangsta/cli
   version: 75b97d09d9f5792ff997e249a330a3ca28f8b537
 - name: github.com/golang/protobuf
