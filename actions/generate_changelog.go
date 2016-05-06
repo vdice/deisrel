@@ -94,7 +94,7 @@ func generateChangelog(client *github.Client, changelog *Changelog) error {
 					changelog.Features = append(changelog.Features, changelogMessage)
 				} else if strings.HasPrefix(commitMessage, "fix(") {
 					changelog.Fixes = append(changelog.Fixes, changelogMessage)
-				} else if strings.HasPrefix(commitMessage, "docs(") {
+				} else if strings.HasPrefix(commitMessage, "docs(") || strings.HasPrefix(commitMessage, "doc(") {
 					changelog.Documentation = append(changelog.Documentation, changelogMessage)
 				} else if strings.HasPrefix(commitMessage, "chore(") {
 					changelog.Maintenance = append(changelog.Maintenance, changelogMessage)

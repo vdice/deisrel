@@ -58,6 +58,13 @@ func TestGenerateChangelog(t *testing.T) {
 		    },
 		    {
 		      "sha": "abc4567890123",
+		      "commit": { "author": { "name": "n" }, "message": "doc(deisrel): new docs!" },
+		      "author": { "login": "l" },
+		      "committer": { "login": "l" },
+		      "parents": [ { "sha": "s" } ]
+		    },
+		    {
+		      "sha": "abc5678901234",
 		      "commit": { "author": { "name": "n" }, "message": "chore(deisrel): boring chore" },
 		      "author": { "login": "l" },
 		      "committer": { "login": "l" },
@@ -82,8 +89,8 @@ func TestGenerateChangelog(t *testing.T) {
 		NewRelease:    "h",
 		Features:      []string{"abc1234 deisrel: new feature!"},
 		Fixes:         []string{"abc2345 deisrel: bugfix!"},
-		Documentation: []string{"abc3456 deisrel: new docs!"},
-		Maintenance:   []string{"abc4567 deisrel: boring chore"},
+		Documentation: []string{"abc3456 deisrel: new docs!", "abc4567 deisrel: new docs!"},
+		Maintenance:   []string{"abc5678 deisrel: boring chore"},
 	}
 
 	if !reflect.DeepEqual(got, want) {
