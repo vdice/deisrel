@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"io"
 	"sync"
 
 	"github.com/google/go-github/github"
@@ -79,4 +80,12 @@ func getLastTag(ghClient *github.Client, repos []string) (map[string]*github.Rep
 		}
 	}
 	return make(map[string]*github.RepositoryTag), nil
+}
+
+func downloadContents(ghClient *github.Client, org, repo, filepath string, opt *github.RepositoryContentGetOptions) (io.ReadCloser, error) {
+	rc, err := ghClient.Repositories.DownloadContents(org, repo, filepath, opt)
+	if err != nil {
+		return nil, err
+	}
+	return rc, nil
 }

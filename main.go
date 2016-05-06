@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/deis/deisrel/actions"
 	"github.com/codegangsta/cli"
+	"github.com/deis/deisrel/actions"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
@@ -71,6 +71,42 @@ func main() {
 					Action: actions.HelmGenerateWorkflow(ghClient),
 				},
 			},
+		},
+		cli.Command{
+			Name: "helm-stage",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  actions.RepoFlag,
+					Value: "charts",
+					Usage: "The GitHub repo name to grab chart from",
+				},
+				cli.StringFlag{
+					Name:  actions.RefFlag,
+					Value: "",
+					Usage: "Optional ref to add to GET request (can be SHA, branch or tag); will be omitted if empty",
+				},
+				cli.StringFlag{
+					Name:  actions.GHOrgFlag,
+					Value: "deis",
+					Usage: "The GitHub org to find repo in",
+				},
+			},
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:        "e2e",
+					Action:      actions.HelmStageE2E(ghClient),
+					Description: "Stages workflow-dev-e2e into staging, amending with $DEIS_RELEASE_SHORT if defined",
+				},
+				cli.Command{
+					Name:        "workflow",
+					Action:      actions.HelmStageWorkflow(ghClient),
+					Description: "Stages workflow-dev into staging, amending with $DEIS_RELEASE_SHORT if defined",
+				},
+			},
+			Description: `Stages chart files into staging.
+			To amend files with values pertinent to a release, user must export the following env variables:
+			$DEIS_RELEASE=<full_semver_release_string>, i.e. 'v1.0.0-alpha1'
+			$DEIS_RELEASE_SHORT=<short_form_release_string>, i.e. 'alpha1'`,
 		},
 	}
 
