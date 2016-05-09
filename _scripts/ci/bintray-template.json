@@ -3,7 +3,7 @@
   "package": {
     "name": "deisrel",
     "repo": "deisci",
-    "subject": "deisrel",
+    "subject": "deis",
     "issue_tracker_url": "https://github.com/deis/deisrel/issues",
     "vcs_url": "https://github.com/deis/deisrel.git"
   },
