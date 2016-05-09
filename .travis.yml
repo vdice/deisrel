@@ -11,7 +11,9 @@ services:
 install:
 - make bootstrap
 script:
-  - make build test dist prep-bintray-json
+  - make build test
+before_deploy:
+  - make dist prep-bintray-json
 deploy:
   provider: bintray
   skip_cleanup: true

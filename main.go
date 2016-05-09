@@ -10,6 +10,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var version = "0.0.0"
+
 func main() {
 	ghTkn := os.Getenv("GITHUB_TOKEN")
 	if ghTkn == "" {
@@ -22,6 +24,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "deisrel"
 	app.Usage = "Utilities for releasing a new Deis version"
+	app.Version = version
 	app.Commands = []cli.Command{
 		cli.Command{
 			Name: "git",
