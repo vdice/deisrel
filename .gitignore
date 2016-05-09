@@ -26,3 +26,4 @@ vendor
 deisrel
 staging
 bin
+_scripts/ci/bintray-ci.json
