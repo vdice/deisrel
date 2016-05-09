@@ -19,11 +19,10 @@ build:
 	${DEV_ENV_PREFIX} -e CGO_ENABLED=0 ${DEV_ENV_IMAGE} go build
 
 test:
-	${DEV_ENV_CMD} sh -c 'go test $$(glide nv)'
+	${DEV_ENV_CMD} sh -c 'go test -v $$(glide nv)'
 
 build-cli-cross:
 	${DEV_ENV_CMD} gox -output="bin/${SHORT_NAME}-{{.OS}}-{{.Arch}}"
-
 
 build-cli:
 	go build -o deisrel ./actions

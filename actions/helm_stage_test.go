@@ -129,9 +129,9 @@ func TestStageFiles(t *testing.T) {
 
 	assert.Equal(t,
 		fakeFileSys.Files,
-		map[string][]byte{
-			stagingDir:                          []byte{},
-			filepath.Join(stagingDir, fileName): []byte{}},
+		map[string]*bytes.Buffer{
+			stagingDir:                          &bytes.Buffer{},
+			filepath.Join(stagingDir, fileName): &bytes.Buffer{}},
 		"file system contents")
 }
 
@@ -143,20 +143,20 @@ func TestCreateDir(t *testing.T) {
 	assert.NoErr(t, err)
 	assert.Equal(t,
 		fakeFileSys.Files,
-		map[string][]byte{"foo": []byte{}},
+		map[string]*bytes.Buffer{"foo": &bytes.Buffer{}},
 		"file system contents")
 }
 
 func TestCreateDirAlreadyExists(t *testing.T) {
 	fakeFileSys := getFakeFileSys()
 
-	fakeFileSys.Files["foo"] = []byte{}
+	fakeFileSys.Create("foo")
 	err := createDir(fakeFileSys, "foo")
 
 	assert.NoErr(t, err)
 	assert.Equal(t,
 		fakeFileSys.Files,
-		map[string][]byte{"foo": []byte{}},
+		map[string]*bytes.Buffer{"foo": &bytes.Buffer{}},
 		"file system contents")
 }
 
@@ -174,7 +174,9 @@ func TestUpdateFilesWithRelease(t *testing.T) {
 	err := updateFilesWithRelease(fakeFilePath, fakeFileSys, deisRelease, fileName)
 
 	assert.NoErr(t, err)
-	assert.Equal(t, fakeFileSys.Files[fileName], []byte(deisRelease.Short), "updated file")
+	actualFileContents, err := fakeFileSys.ReadFile(fileName)
+	assert.NoErr(t, err)
+	assert.Equal(t, actualFileContents, []byte(deisRelease.Short), "updated file")
 }
 
 func TestUpdateFilesWithReleaseWithoutRelease(t *testing.T) {
@@ -185,9 +187,12 @@ func TestUpdateFilesWithReleaseWithoutRelease(t *testing.T) {
 	fakeFileSys.Create(fileName)
 	fakeFileSys.WriteFile(fileName, []byte("dev"), os.ModePerm)
 	fakeFilePath.walkInvoked = false
-	err := updateFilesWithRelease(fakeFilePath, fakeFileSys, deisRelease, fileName)
 
+	err := updateFilesWithRelease(fakeFilePath, fakeFileSys, deisRelease, fileName)
 	assert.NoErr(t, err)
 	assert.Equal(t, fakeFilePath.walkInvoked, false, "walk invoked")
-	assert.Equal(t, fakeFileSys.Files[fileName], []byte("dev"), "updated file")
+
+	actualFileContents, err := fakeFileSys.ReadFile(fileName)
+	assert.NoErr(t, err)
+	assert.Equal(t, actualFileContents, []byte("dev"), "updated file")
 }

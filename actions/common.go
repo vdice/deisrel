@@ -13,10 +13,16 @@ const (
 	PullPolicyFlag = "pull-policy"
 	// OrgFlag represents the '-org' flag
 	OrgFlag = "org"
-	// ShaFileFlag represents the --sha-filepath flag
+	// ShaFilepathFlag represents the --sha-filepath flag
 	ShaFilepathFlag = "sha-filepath"
 	// YesFlag represents the --yes flag
 	YesFlag = "yes"
+	// StageFlag represents the '-stage' flag
+	StageFlag = "stage"
+)
+
+const (
+	generateParamsFileName = "generate_params.toml"
 )
 
 var (
