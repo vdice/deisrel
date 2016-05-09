@@ -26,6 +26,7 @@ var (
 		"router":           {"Router"},
 		"slugbuilder":      {"SlugBuilder"},
 		"slugrunner":       {"SlugRunner"},
+		"stdout-metrics":   {"StdoutMetrics"},
 		"workflow":         {"Workflow"},
 		"workflow-e2e":     {"WorkflowE2E"},
 		"workflow-manager": {"WorkflowManager"},
