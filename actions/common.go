@@ -6,10 +6,18 @@ import (
 	"path/filepath"
 )
 
-type releaseName struct {
-	Full  string
-	Short string
-}
+const (
+	// TagFlag represents the '-tag' flag
+	TagFlag = "tag"
+	// PullPolicyFlag represents the '-pull-policy' flag
+	PullPolicyFlag = "pull-policy"
+	// OrgFlag represents the '-org' flag
+	OrgFlag = "org"
+	// ShaFileFlag represents the --sha-filepath flag
+	ShaFilepathFlag = "sha-filepath"
+	// YesFlag represents the --yes flag
+	YesFlag = "yes"
+)
 
 var (
 	// TODO: https://github.com/deis/deisrel/issues/12
@@ -40,6 +48,11 @@ var (
 	}
 	stagingPath = getFullPath("staging")
 )
+
+type releaseName struct {
+	Full  string
+	Short string
+}
 
 func getRepoNames(repoToComponentNames map[string][]string) []string {
 	repoNames := make([]string, 0, len(repoToComponentNames))
