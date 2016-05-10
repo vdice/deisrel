@@ -14,8 +14,8 @@ const (
 )
 
 // GetShas is the CLI action for getting github shas of all of the Deis Workflow repos
-func GetShas(ghClient *github.Client) func(c *cli.Context) {
-	return func(c *cli.Context) {
+func GetShas(ghClient *github.Client) func(c *cli.Context) error {
+	return func(c *cli.Context) error {
 		transformFunc := noTransform
 		if c.Bool(ShortFlag) {
 			transformFunc = shortShaTransform
@@ -27,5 +27,6 @@ func GetShas(ghClient *github.Client) func(c *cli.Context) {
 		for _, repoAndSha := range reposAndShas {
 			fmt.Printf("%s - %s\n", repoAndSha.repoName, repoAndSha.sha)
 		}
+		return nil
 	}
 }

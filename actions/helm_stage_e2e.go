@@ -10,8 +10,8 @@ import (
 )
 
 // HelmStageE2E is the cli handler for generating a release helm chart for deis-e2e
-func HelmStageE2E(ghClient *github.Client) func(*cli.Context) {
-	return func(c *cli.Context) {
+func HelmStageE2E(ghClient *github.Client) func(*cli.Context) error {
+	return func(c *cli.Context) error {
 		const chartDir = "workflow-dev-e2e"
 		var fileNames = []string{
 			fmt.Sprintf("%s/README.md", chartDir),
@@ -23,5 +23,7 @@ func HelmStageE2E(ghClient *github.Client) func(*cli.Context) {
 			log.Fatalf("Error creating dir %s (%s)", stagingDir, err)
 		}
 		helmStage(ghClient, c, fileNames, stagingDir)
+
+		return nil
 	}
 }

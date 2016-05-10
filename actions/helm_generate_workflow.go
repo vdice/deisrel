@@ -9,8 +9,8 @@ import (
 )
 
 // HelmGenerateWorkflow is the cli handler for generating a helm parameters file for deis-workflow
-func HelmGenerateWorkflow(ghClient *github.Client) func(*cli.Context) {
-	return func(c *cli.Context) {
+func HelmGenerateWorkflow(ghClient *github.Client) func(*cli.Context) error {
+	return func(c *cli.Context) error {
 		const (
 			chartDir = "workflow-dev"
 		)
@@ -50,5 +50,7 @@ func HelmGenerateWorkflow(ghClient *github.Client) func(*cli.Context) {
 		if err := generateParams(shouldStage, ourFS, stagingDir, paramsComponentMap); err != nil {
 			log.Fatalf("Error outputting the workflow values file (%s)", err)
 		}
+
+		return nil
 	}
 }

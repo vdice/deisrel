@@ -95,8 +95,8 @@ func downloadContents(ghClient *github.Client, org, repo, filepath string, opt *
 	return rc, nil
 }
 
-func GitTag(client *github.Client) func(c *cli.Context) {
-	return func(c *cli.Context) {
+func GitTag(client *github.Client) func(c *cli.Context) error {
+	return func(c *cli.Context) error {
 		tag := c.Args().Get(0)
 		shaFilepath := c.String(ShaFilepathFlag)
 
@@ -142,6 +142,7 @@ func GitTag(client *github.Client) func(c *cli.Context) {
 				log.Fatal(fmt.Errorf("could create tag %s: %v", tag, err))
 			}
 		}
+		return nil
 	}
 }
 

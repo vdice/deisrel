@@ -9,8 +9,8 @@ import (
 )
 
 // HelmGenerateE2E is the cli handler for generating a helm parameters file for deis-e2e
-func HelmGenerateE2E(ghClient *github.Client) func(*cli.Context) {
-	return func(c *cli.Context) {
+func HelmGenerateE2E(ghClient *github.Client) func(*cli.Context) error {
+	return func(c *cli.Context) error {
 		const (
 			repoName = "workflow-e2e"
 			chartDir = "workflow-dev-e2e"
@@ -38,5 +38,6 @@ func HelmGenerateE2E(ghClient *github.Client) func(*cli.Context) {
 		if err := generateParams(shouldStage, ourFS, stagingDir, paramsComponentMap); err != nil {
 			log.Fatalf("Error outputting the workflow values file (%s)", err)
 		}
+		return nil
 	}
 }
