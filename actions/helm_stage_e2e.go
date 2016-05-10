@@ -16,6 +16,7 @@ func HelmStageE2E(ghClient *github.Client) func(*cli.Context) error {
 		var fileNames = []string{
 			fmt.Sprintf("%s/README.md", chartDir),
 			fmt.Sprintf("%s/Chart.yaml", chartDir),
+			fmt.Sprintf("%s/tpl/workflow-e2e-pod.yaml", chartDir),
 		}
 
 		stagingDir := filepath.Join(stagingPath, chartDir)
