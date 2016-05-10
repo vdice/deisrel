@@ -51,8 +51,8 @@ type Changelog struct {
 }
 
 // GenerateChangelog is the CLI action for creating an aggregated changelog from all of the Deis Workflow repos.
-func GenerateChangelog(client *github.Client, dest io.Writer) func(*cli.Context) {
-	return func(c *cli.Context) {
+func GenerateChangelog(client *github.Client, dest io.Writer) func(*cli.Context) error {
+	return func(c *cli.Context) error {
 		changelog := &Changelog{
 			OldRelease: c.Args().Get(0),
 			NewRelease: c.Args().Get(1),
@@ -67,6 +67,7 @@ func GenerateChangelog(client *github.Client, dest io.Writer) func(*cli.Context)
 		if err != nil {
 			log.Fatalf("could not template changelog: %s", err)
 		}
+		return nil
 	}
 }
 
