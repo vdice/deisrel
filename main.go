@@ -78,6 +78,10 @@ func main() {
 					Value: "deis",
 					Usage: "The docker repository organization to set on each image",
 				},
+				cli.BoolFlag{
+					Name:  actions.StageFlag,
+					Usage: "If set, will stage generated file(s) into staging",
+				},
 			},
 			Subcommands: []cli.Command{
 				cli.Command{

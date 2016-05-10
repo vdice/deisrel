@@ -2,6 +2,7 @@ package actions
 
 import (
 	"log"
+	"path/filepath"
 
 	"github.com/codegangsta/cli"
 	"github.com/google/go-github/github"
@@ -45,7 +46,8 @@ func HelmGenerateWorkflow(ghClient *github.Client) func(*cli.Context) {
 		}
 
 		shouldStage := c.GlobalBool(StageFlag)
-		if err := generateParams(shouldStage, ourFS, chartDir, paramsComponentMap); err != nil {
+		stagingDir := filepath.Join(stagingPath, chartDir)
+		if err := generateParams(shouldStage, ourFS, stagingDir, paramsComponentMap); err != nil {
 			log.Fatalf("Error outputting the workflow values file (%s)", err)
 		}
 	}
