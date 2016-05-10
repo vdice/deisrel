@@ -113,18 +113,18 @@ func main() {
 				cli.Command{
 					Name:        "e2e",
 					Action:      actions.HelmStageE2E(ghClient),
-					Description: "Stages workflow-dev-e2e into staging, amending with $DEIS_RELEASE_SHORT if defined",
+					Description: "Stages workflow-dev-e2e into staging, amending with $WORKFLOW_RELEASE_SHORT if defined",
 				},
 				cli.Command{
 					Name:        "workflow",
 					Action:      actions.HelmStageWorkflow(ghClient),
-					Description: "Stages workflow-dev into staging, amending with $DEIS_RELEASE_SHORT if defined",
+					Description: "Stages workflow-dev into staging, amending with $WORKFLOW_RELEASE_SHORT if defined",
 				},
 			},
 			Description: `Stages chart files into staging.
 			To amend files with values pertinent to a release, user must export the following env variables:
-			$DEIS_RELEASE=<full_semver_release_string>, i.e. 'v1.0.0-alpha1'
-			$DEIS_RELEASE_SHORT=<short_form_release_string>, i.e. 'alpha1'`,
+			$WORKFLOW_RELEASE=<full_semver_release_string>, i.e. 'v1.0.0-alpha1'
+			$WORKFLOW_RELEASE_SHORT=<short_form_release_string>, i.e. 'alpha1'`,
 		},
 	}
 
