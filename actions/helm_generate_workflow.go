@@ -47,7 +47,7 @@ func HelmGenerateWorkflow(ghClient *github.Client) func(*cli.Context) error {
 
 		shouldStage := c.GlobalBool(StageFlag)
 		stagingDir := filepath.Join(stagingPath, chartDir)
-		if err := generateParams(shouldStage, ourFS, stagingDir, paramsComponentMap); err != nil {
+		if err := generateParams(shouldStage, ourFS, stagingDir, paramsComponentMap, generateParamsTpl); err != nil {
 			log.Fatalf("Error outputting the workflow values file (%s)", err)
 		}
 

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"text/template"
 )
 
 type nopWriteCloser struct {
@@ -21,7 +22,7 @@ func NopWriteCloser(w io.Writer) io.WriteCloser {
 	return nopWriteCloser{w}
 }
 
-func generateParams(stage bool, fs fileSys, whereTo string, paramsComponentMap genParamsComponentMap) error {
+func generateParams(stage bool, fs fileSys, whereTo string, paramsComponentMap genParamsComponentMap, template *template.Template) error {
 	var executeTo = NopWriteCloser(os.Stdout)
 	if stage {
 		defer executeTo.Close()
@@ -31,7 +32,7 @@ func generateParams(stage bool, fs fileSys, whereTo string, paramsComponentMap g
 			log.Fatalf("Error creating staging file (%s)", err)
 		}
 	}
-	return generateParamsTpl.Execute(executeTo, paramsComponentMap)
+	return template.Execute(executeTo, paramsComponentMap)
 }
 
 func executeToStaging(fs fileSys, stagingSubDir string) (io.WriteCloser, error) {

@@ -15,13 +15,15 @@ func HelmGenerateE2E(ghClient *github.Client) func(*cli.Context) error {
 			repoName = "workflow-e2e"
 			chartDir = "workflow-dev-e2e"
 		)
+		var componentName = repoToComponentNames[repoName][0]
+
 		params := genParamsComponentAttrs{
 			Org:        c.GlobalString(OrgFlag),
-			PullPolicy: c.GlobalString(PullPolicyFlag),
 			Tag:        c.GlobalString(TagFlag),
+			PullPolicy: c.GlobalString(PullPolicyFlag),
 		}
 		paramsComponentMap := createParamsComponentMap()
-		paramsComponentMap[repoName] = params
+		paramsComponentMap[componentName] = params
 
 		if params.Tag == "" {
 			reposAndShas, err := getShas(ghClient, []string{repoName}, shortShaTransform)
@@ -31,11 +33,11 @@ func HelmGenerateE2E(ghClient *github.Client) func(*cli.Context) error {
 				log.Fatalf("No tag given and no sha returned from GitHub for deis/%s", repoName)
 			}
 			params.Tag = "git-" + reposAndShas[0].sha
-			paramsComponentMap[repoName] = params
+			paramsComponentMap[componentName] = params
 		}
 		shouldStage := c.GlobalBool(StageFlag)
 		stagingDir := filepath.Join(stagingPath, chartDir)
-		if err := generateParams(shouldStage, ourFS, stagingDir, paramsComponentMap); err != nil {
+		if err := generateParams(shouldStage, ourFS, stagingDir, paramsComponentMap, generateParamsE2ETpl); err != nil {
 			log.Fatalf("Error outputting the workflow values file (%s)", err)
 		}
 		return nil

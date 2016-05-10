@@ -6,7 +6,7 @@ import (
 
 const (
 	// TODO: https://github.com/deis/deisrel/issues/11
-	generateParamsTplStr = `#helm:generate helm template -o $HELM_GENERATE_DIR/manifests/deis-objectstorage-secret.yaml -d $HELM_GENERATE_FILE $HELM_GENERATE_DIR/tpl/deis-objectstorage-secret.yaml
+	generateParamsTplStr = `#helm:generate $HELM_GENERATE_DIR/tpl/minio.sh
 #
 # This is the main configuration file for Deis object storage. The values in
 # this file are passed into the appropriate services so that they can configure
@@ -15,7 +15,7 @@ const (
 # In general, all object storage credentials must be able to read and write to
 # the container or bucket they are configured to use.
 #
-# When you change values in this file, make sure to re-run 'helm generate'
+# When you change values in this file, make sure to re-run 'helmc generate'
 # on this chart.
 
 # Set the storage backend
