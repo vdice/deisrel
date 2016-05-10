@@ -23,7 +23,7 @@ func TestGenerateParamsNoStage(t *testing.T) {
 		paramsComponentMap[componentName] = defaultParamsComponentAttrs
 	}
 
-	err := generateParams(false, fakeFS, stagingDir, paramsComponentMap)
+	err := generateParams(false, fakeFS, stagingDir, paramsComponentMap, generateParamsTpl)
 	assert.NoErr(t, err)
 
 	expectedStagedFilepath := filepath.Join(stagingDir, "tpl/generate_params.toml")
@@ -31,7 +31,7 @@ func TestGenerateParamsNoStage(t *testing.T) {
 	assert.ExistsErr(t, err, "existence of staged file")
 }
 
-func TestGenerateParamsStage(t *testing.T) {
+func TestGenerateParamsStageWorkflow(t *testing.T) {
 	fakeFS := getFakeFileSys()
 	stagingDir := filepath.Join(stagingPath, "foo")
 	defaultParamsComponentAttrs := genParamsComponentAttrs{
@@ -44,7 +44,7 @@ func TestGenerateParamsStage(t *testing.T) {
 		paramsComponentMap[componentName] = defaultParamsComponentAttrs
 	}
 
-	err := generateParams(true, fakeFS, stagingDir, paramsComponentMap)
+	err := generateParams(true, fakeFS, stagingDir, paramsComponentMap, generateParamsTpl)
 	assert.NoErr(t, err)
 
 	expectedStagedFilepath := filepath.Join(stagingDir, "tpl/generate_params.toml")
@@ -72,6 +72,39 @@ func TestGenerateParamsStage(t *testing.T) {
 				fmt.Sprintf("component: %s not found!", lowerCasedComponentName))
 		}
 	}
+}
+
+func TestGenerateParamsStageE2E(t *testing.T) {
+	fakeFS := getFakeFileSys()
+	stagingDir := filepath.Join(stagingPath, "foo")
+	defaultParamsComponentAttrs := genParamsComponentAttrs{
+		Org:        "org",
+		Tag:        "",
+		PullPolicy: "stayGangsta",
+	}
+	paramsComponentMap := createParamsComponentMap()
+	componentName := "WorkflowE2E"
+	paramsComponentMap[componentName] = defaultParamsComponentAttrs
+
+	err := generateParams(true, fakeFS, stagingDir, paramsComponentMap, generateParamsE2ETpl)
+	assert.NoErr(t, err)
+
+	expectedStagedFilepath := filepath.Join(stagingDir, "tpl/generate_params.toml")
+	// verify file exists in fakeFS
+	_, err = fakeFS.ReadFile(expectedStagedFilepath)
+	assert.NoErr(t, err)
+
+	actualFileContents, err := fakeFS.ReadFile(expectedStagedFilepath)
+	assert.NoErr(t, err)
+	expectedFileContents := new(bytes.Buffer)
+	err = generateParamsE2ETpl.Execute(expectedFileContents, paramsComponentMap)
+	assert.NoErr(t, err)
+
+	assert.Equal(t, actualFileContents, expectedFileContents.Bytes(), "staged file contents")
+
+	assert.True(t,
+		strings.Contains(string(actualFileContents), "e2e"),
+		fmt.Sprintln("component: e2e not found!"))
 }
 
 func TestExecuteToStaging(t *testing.T) {

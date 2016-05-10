@@ -75,7 +75,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  actions.OrgFlag,
-					Value: "deis",
+					Value: "deisci",
 					Usage: "The docker repository organization to set on each image",
 				},
 				cli.BoolFlag{
