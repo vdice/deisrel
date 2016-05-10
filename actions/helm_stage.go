@@ -92,7 +92,7 @@ func stageFiles(fs fileSys, ghFiles []ghFile, stagingDir string) {
 
 func updateFilesWithRelease(fp filePath, fs fileSys, release releaseName, walkPath string) error {
 	if release.Full == "" || release.Short == "" {
-		log.Printf("DEIS_RELEASE (%s) and/or DEIS_RELEASE_SHORT (%s) not provided so not amending staged files.", release.Full, release.Short)
+		log.Printf("WORKFLOW_RELEASE (%s) and/or WORKFLOW_RELEASE_SHORT (%s) not provided so not amending staged files.", release.Full, release.Short)
 	} else {
 		if err := fp.Walk(walkPath, getReleaseWalker().handlerFunc(fs, release)); err != nil {
 			return err

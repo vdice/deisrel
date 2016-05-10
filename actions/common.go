@@ -49,8 +49,8 @@ var (
 	repoNames      = getRepoNames(repoToComponentNames)
 	componentNames = getComponentNames(repoToComponentNames)
 	deisRelease    = releaseName{
-		Full:  os.Getenv("DEIS_RELEASE"),
-		Short: os.Getenv("DEIS_RELEASE_SHORT"),
+		Full:  os.Getenv("WORKFLOW_RELEASE"),
+		Short: os.Getenv("WORKFLOW_RELEASE_SHORT"),
 	}
 	stagingPath = getFullPath("staging")
 )
