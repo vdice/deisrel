@@ -61,8 +61,21 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:   "generate-changelog",
-			Action: actions.GenerateChangelog(ghClient, os.Stdout),
+			Name: "changelog",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:        "global",
+					Action:      actions.GenerateChangelog(ghClient, os.Stdout),
+					Usage:       "deisrel changelog global <old-release> <new-release>",
+					Description: "Aggregate changelog entries from all known repositories for a specified release",
+				},
+				cli.Command{
+					Name:        "individual",
+					Action:      actions.GenerateIndividualChangelog(ghClient, os.Stdout),
+					Usage:       "deisrel changelog individual <repo-name> <old-release> <sha> <new-release>",
+					Description: "Generate a changelog entry for an changes on an individual repository, from a specified old release through a specified git SHA. The release will be called the specified new release in the changelog's title",
+				},
+			},
 		},
 		cli.Command{
 			Name: "helm-params",
