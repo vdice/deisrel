@@ -3,37 +3,147 @@ package actions
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/arschles/assert"
+	"github.com/deis/deisrel/testutil"
 )
 
-func TestGenerateParamsNoStage(t *testing.T) {
-	fakeFS := getFakeFileSys()
-	stagingDir := "staging/foo"
+func TestGenParamsComponentMapWorkflowE2EEmptyTag(t *testing.T) {
+	ts := testutil.NewTestServer()
+	defer ts.Close()
+
+	org := "deis"
+	repo := "workflow-e2e"
+	sha := "123abc456def"
+
+	ts.Mux.HandleFunc(fmt.Sprintf("/repos/%s/%s/commits", org, repo), func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Method; got != "GET" {
+			t.Errorf("Request method: %v, want GET", got)
+		}
+		resp := `[
+			{
+			 "url": "",
+			 "sha": "` + sha + `",
+			 "html_url": "",
+			 "comments_url": "",
+			 "commit": {
+				 "url": "",
+				 "author": {
+					 "name": "",
+					 "email": "",
+					 "date": "2011-04-14T16:00:49Z"
+				 },
+				 "committer": {
+					 "name": "",
+					 "email": "",
+					 "date": "2011-04-14T16:00:49Z"
+				 },
+				 "message": "",
+				 "tree": {
+					 "url": "",
+					 "sha": "` + sha + `"
+				 },
+				 "comment_count": 0,
+				 "verification": {
+					 "verified": true,
+					 "reason": "valid",
+					 "signature": "",
+					 "payload": "tree ` + sha + `\n..."
+				 }
+			 },
+			 "author": {
+				 "login": "",
+				 "id": 1,
+				 "avatar_url": "",
+				 "gravatar_id": "",
+				 "url": "",
+				 "html_url": "",
+				 "followers_url": "",
+				 "following_url": "",
+				 "gists_url": "",
+				 "starred_url": "",
+				 "subscriptions_url": "",
+				 "organizations_url": "",
+				 "repos_url": "",
+				 "events_url": "",
+				 "received_events_url": "",
+				 "type": "User",
+				 "site_admin": false
+			 },
+			 "committer": {
+				 "login": "",
+				 "id": 1,
+				 "avatar_url": "",
+				 "gravatar_id": "",
+				 "url": "",
+				 "html_url": "",
+				 "followers_url": "",
+				 "following_url": "",
+				 "gists_url": "",
+				 "starred_url": "",
+				 "subscriptions_url": "",
+				 "organizations_url": "",
+				 "repos_url": "",
+				 "events_url": "",
+				 "received_events_url": "",
+				 "type": "User",
+				 "site_admin": false
+			 },
+			 "parents": [
+				 {
+					 "url": "",
+					 "sha": "` + sha + `"
+				 }
+			 ]
+			}
+		]`
+		fmt.Fprintf(w, resp)
+	})
+
+	testGenParamsComponentMap(t, ts, "", fmt.Sprintf("git-%s", shortShaTransform(sha)), WorkflowE2EChart)
+}
+
+func TestGenParamsComponentMapWorkflow(t *testing.T) {
+	ts := testutil.NewTestServer()
+	defer ts.Close()
+	testGenParamsComponentMap(t, ts, "tag", "tag", WorkflowChart)
+}
+
+func TestGenParamsComponentMapE2E(t *testing.T) {
+	ts := testutil.NewTestServer()
+	defer ts.Close()
+	testGenParamsComponentMap(t, ts, "tag", "tag", WorkflowE2EChart)
+}
+
+func testGenParamsComponentMap(t *testing.T, ts *testutil.TestServer, inputTag string, expectedTag string, helmChart helmChart) {
 	defaultParamsComponentAttrs := genParamsComponentAttrs{
 		Org:        "org",
-		Tag:        "",
-		PullPolicy: "stayGangsta",
+		PullPolicy: "pullPolicy",
+		Tag:        inputTag,
 	}
-	paramsComponentMap := createParamsComponentMap()
-	for _, componentName := range componentNames {
-		paramsComponentMap[componentName] = defaultParamsComponentAttrs
+	got := getParamsComponentMap(ts.Client, defaultParamsComponentAttrs, helmChart.Template)
+
+	want := createParamsComponentMap()
+	wantedPCA := defaultParamsComponentAttrs
+	wantedPCA.Tag = expectedTag
+	if helmChart.Template == generateParamsE2ETpl {
+		want["WorkflowE2E"] = wantedPCA
+	} else {
+		for _, componentName := range componentNames {
+			want[componentName] = wantedPCA
+		}
 	}
 
-	err := generateParams(false, fakeFS, stagingDir, paramsComponentMap, generateParamsTpl)
-	assert.NoErr(t, err)
-
-	expectedStagedFilepath := filepath.Join(stagingDir, "tpl/generate_params.toml")
-	_, err = fakeFS.ReadFile(expectedStagedFilepath)
-	assert.ExistsErr(t, err, "existence of staged file")
+	assert.Equal(t, got, want, fmt.Sprintf("generated paramsComponentMap for helm chart %s", helmChart.Name))
 }
 
 func TestGenerateParamsStageWorkflow(t *testing.T) {
 	fakeFS := getFakeFileSys()
-	stagingDir := filepath.Join(stagingPath, "foo")
+	stagingDir := filepath.Join(defaultStagingPath, "foo")
 	defaultParamsComponentAttrs := genParamsComponentAttrs{
 		Org:        "org",
 		Tag:        "",
@@ -44,7 +154,7 @@ func TestGenerateParamsStageWorkflow(t *testing.T) {
 		paramsComponentMap[componentName] = defaultParamsComponentAttrs
 	}
 
-	err := generateParams(true, fakeFS, stagingDir, paramsComponentMap, generateParamsTpl)
+	err := generateParams(fakeFS, stagingDir, paramsComponentMap, WorkflowChart)
 	assert.NoErr(t, err)
 
 	expectedStagedFilepath := filepath.Join(stagingDir, "tpl/generate_params.toml")
@@ -76,7 +186,7 @@ func TestGenerateParamsStageWorkflow(t *testing.T) {
 
 func TestGenerateParamsStageE2E(t *testing.T) {
 	fakeFS := getFakeFileSys()
-	stagingDir := filepath.Join(stagingPath, "foo")
+	stagingDir := filepath.Join(defaultStagingPath, "foo")
 	defaultParamsComponentAttrs := genParamsComponentAttrs{
 		Org:        "org",
 		Tag:        "",
@@ -86,7 +196,7 @@ func TestGenerateParamsStageE2E(t *testing.T) {
 	componentName := "WorkflowE2E"
 	paramsComponentMap[componentName] = defaultParamsComponentAttrs
 
-	err := generateParams(true, fakeFS, stagingDir, paramsComponentMap, generateParamsE2ETpl)
+	err := generateParams(fakeFS, stagingDir, paramsComponentMap, WorkflowE2EChart)
 	assert.NoErr(t, err)
 
 	expectedStagedFilepath := filepath.Join(stagingDir, "tpl/generate_params.toml")
@@ -109,7 +219,7 @@ func TestGenerateParamsStageE2E(t *testing.T) {
 
 func TestExecuteToStaging(t *testing.T) {
 	fakeFS := getFakeFileSys()
-	stagingDir := filepath.Join(stagingPath, "foo")
+	stagingDir := filepath.Join(defaultStagingPath, "foo")
 
 	_, err := executeToStaging(fakeFS, stagingDir)
 	assert.NoErr(t, err)

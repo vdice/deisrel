@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"text/template"
 )
 
 const (
@@ -17,13 +18,30 @@ const (
 	ShaFilepathFlag = "sha-filepath"
 	// YesFlag represents the --yes flag
 	YesFlag = "yes"
-	// StageFlag represents the '-stage' flag
-	StageFlag = "stage"
+	// RepoFlag represents the '-repo' flag
+	RepoFlag = "repo"
+	// RefFlag represents the '-ref' flag (for specifying a SHA, branch or tag)
+	RefFlag = "ref"
+	// GHOrgFlag represents the '-ghOrg' flag
+	GHOrgFlag = "ghOrg"
+	// StagingDirFlag represents the '-stagingDir' flag
+	StagingDirFlag = "stagingDir"
 )
 
 const (
 	generateParamsFileName = "generate_params.toml"
 )
+
+type helmChart struct {
+	Name     string
+	Template *template.Template
+	Files    []string
+}
+
+type releaseName struct {
+	Full  string
+	Short string
+}
 
 var (
 	// TODO: https://github.com/deis/deisrel/issues/12
@@ -52,13 +70,31 @@ var (
 		Full:  os.Getenv("WORKFLOW_RELEASE"),
 		Short: os.Getenv("WORKFLOW_RELEASE_SHORT"),
 	}
-	stagingPath = getFullPath("staging")
-)
+	defaultStagingPath = getFullPath("staging")
 
-type releaseName struct {
-	Full  string
-	Short string
-}
+	// WorkflowChart represents the workflow chart and its files needing updating
+	// for a release
+	WorkflowChart = helmChart{
+		Name:     "workflow-dev",
+		Template: generateParamsTpl,
+		Files: []string{
+			"README.md",
+			"Chart.yaml",
+		},
+	}
+
+	// WorkflowE2EChart represents the workflow e2e chart and its files needing updating
+	// for a release
+	WorkflowE2EChart = helmChart{
+		Name:     "workflow-dev-e2e",
+		Template: generateParamsE2ETpl,
+		Files: []string{
+			"README.md",
+			"Chart.yaml",
+			filepath.Join("tpl", "workflow-e2e-pod.yaml"),
+		},
+	}
+)
 
 func getRepoNames(repoToComponentNames map[string][]string) []string {
 	repoNames := make([]string, 0, len(repoToComponentNames))
