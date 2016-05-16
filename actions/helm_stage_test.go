@@ -40,7 +40,7 @@ func TestDownloadFiles(t *testing.T) {
 		    "url": "",
 		    "git_url": "",
 		    "html_url": "",
-		    "download_url": "https://raw.githubusercontent.com/` + org + `/` + repo + `master/` + filePath + `",
+		    "download_url": "https://raw.githubusercontent.com/` + org + `/` + repo + `/master/` + filePath + `",
 		    "_links": {
 		      "self": "",
 		      "git": "",

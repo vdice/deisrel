@@ -19,10 +19,14 @@ func TestGenParamsComponentMapWorkflowE2EEmptyTag(t *testing.T) {
 	org := "deis"
 	repo := "workflow-e2e"
 	sha := "123abc456def"
+	ref := "foo-ref"
 
 	ts.Mux.HandleFunc(fmt.Sprintf("/repos/%s/%s/commits", org, repo), func(w http.ResponseWriter, r *http.Request) {
 		if got := r.Method; got != "GET" {
 			t.Errorf("Request method: %v, want GET", got)
+		}
+		if got := r.URL.RequestURI(); !strings.Contains(got, fmt.Sprintf("&sha=%s", ref)) {
+			t.Errorf("Request URL (%v) did not include %s in 'sha' specifier", got, ref)
 		}
 		resp := `[
 			{
@@ -104,28 +108,28 @@ func TestGenParamsComponentMapWorkflowE2EEmptyTag(t *testing.T) {
 		fmt.Fprintf(w, resp)
 	})
 
-	testGenParamsComponentMap(t, ts, "", fmt.Sprintf("git-%s", shortShaTransform(sha)), WorkflowE2EChart)
+	testGenParamsComponentMap(t, ts, "", fmt.Sprintf("git-%s", shortShaTransform(sha)), ref, WorkflowE2EChart)
 }
 
 func TestGenParamsComponentMapWorkflow(t *testing.T) {
 	ts := testutil.NewTestServer()
 	defer ts.Close()
-	testGenParamsComponentMap(t, ts, "tag", "tag", WorkflowChart)
+	testGenParamsComponentMap(t, ts, "tag", "tag", "ref", WorkflowChart)
 }
 
 func TestGenParamsComponentMapE2E(t *testing.T) {
 	ts := testutil.NewTestServer()
 	defer ts.Close()
-	testGenParamsComponentMap(t, ts, "tag", "tag", WorkflowE2EChart)
+	testGenParamsComponentMap(t, ts, "tag", "tag", "ref", WorkflowE2EChart)
 }
 
-func testGenParamsComponentMap(t *testing.T, ts *testutil.TestServer, inputTag string, expectedTag string, helmChart helmChart) {
+func testGenParamsComponentMap(t *testing.T, ts *testutil.TestServer, inputTag, expectedTag, ref string, helmChart helmChart) {
 	defaultParamsComponentAttrs := genParamsComponentAttrs{
 		Org:        "org",
 		PullPolicy: "pullPolicy",
 		Tag:        inputTag,
 	}
-	got := getParamsComponentMap(ts.Client, defaultParamsComponentAttrs, helmChart.Template)
+	got := getParamsComponentMap(ts.Client, defaultParamsComponentAttrs, helmChart.Template, ref)
 
 	want := createParamsComponentMap()
 	wantedPCA := defaultParamsComponentAttrs

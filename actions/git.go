@@ -21,7 +21,7 @@ type repoAndSha struct {
 func noTransform(s string) string       { return s }
 func shortShaTransform(s string) string { return s[:7] }
 
-func getShas(ghClient *github.Client, repos []string, transform func(string) string) ([]repoAndSha, error) {
+func getShas(ghClient *github.Client, repos []string, transform func(string) string, ref string) ([]repoAndSha, error) {
 	outCh := make(chan repoAndSha)
 	errCh := make(chan error)
 	doneCh := make(chan struct{})
@@ -32,6 +32,7 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 		ech := make(chan error)
 		go func(repo string) {
 			repoCommits, _, err := ghClient.Repositories.ListCommits("deis", repo, &github.CommitsListOptions{
+				SHA: ref,
 				ListOptions: github.ListOptions{
 					Page:    1,
 					PerPage: 1,
@@ -104,7 +105,7 @@ func GitTag(client *github.Client) func(c *cli.Context) error {
 			log.Fatal("Usage: deisrel git tag <options> <tag>")
 		}
 
-		repos, err := getShas(client, repoNames, noTransform)
+		repos, err := getShas(client, repoNames, noTransform, c.GlobalString(RefFlag))
 		if err != nil {
 			log.Fatal(err)
 		}

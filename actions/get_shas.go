@@ -20,7 +20,7 @@ func GetShas(ghClient *github.Client) func(c *cli.Context) error {
 		if c.Bool(ShortFlag) {
 			transformFunc = shortShaTransform
 		}
-		reposAndShas, err := getShas(ghClient, repoNames, transformFunc)
+		reposAndShas, err := getShas(ghClient, repoNames, transformFunc, c.GlobalString(RefFlag))
 		if err != nil {
 			log.Fatal(err)
 		}
