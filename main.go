@@ -41,6 +41,11 @@ func main() {
 							Name:  actions.ShortFlag,
 							Usage: "Whether to show short 7 character shas",
 						},
+						cli.StringFlag{
+							Name:  actions.RefFlag,
+							Value: "master",
+							Usage: "Optional ref to add to GitHub repo request (can be SHA, branch or tag)",
+						},
 					},
 				},
 				cli.Command{
@@ -102,8 +107,8 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  actions.RefFlag,
-					Value: "",
-					Usage: "Optional ref to add to GET request (can be SHA, branch or tag); will be omitted if empty",
+					Value: "master",
+					Usage: "Optional ref to add to GitHub repo request (can be SHA, branch or tag)",
 				},
 				cli.StringFlag{
 					Name:  actions.GHOrgFlag,

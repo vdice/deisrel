@@ -39,7 +39,7 @@ func executeToStaging(fs fileSys, stagingSubDir string) (io.WriteCloser, error) 
 	return fs.Create(filepath.Join(stagingSubDir, generateParamsFileName))
 }
 
-func getParamsComponentMap(ghClient *github.Client, defaultParamsComponentAttrs genParamsComponentAttrs, template *template.Template) genParamsComponentMap {
+func getParamsComponentMap(ghClient *github.Client, defaultParamsComponentAttrs genParamsComponentAttrs, template *template.Template, ref string) genParamsComponentMap {
 	paramsComponentMap := createParamsComponentMap()
 
 	if template == generateParamsE2ETpl {
@@ -52,7 +52,7 @@ func getParamsComponentMap(ghClient *github.Client, defaultParamsComponentAttrs 
 
 	if defaultParamsComponentAttrs.Tag == "" {
 		// gather latest sha for each repo via GitHub api
-		reposAndShas, err := getShas(ghClient, repoNames, shortShaTransform)
+		reposAndShas, err := getShas(ghClient, repoNames, shortShaTransform, ref)
 		if err != nil {
 			log.Fatalf("No tag given and couldn't fetch sha from GitHub (%s)", err)
 		} else if len(reposAndShas) < 1 {

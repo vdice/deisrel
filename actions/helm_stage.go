@@ -52,7 +52,7 @@ func helmStage(ghClient *github.Client, c *cli.Context, helmChart helmChart) {
 		PullPolicy: c.GlobalString(PullPolicyFlag),
 		Tag:        c.GlobalString(TagFlag),
 	}
-	paramsComponentMap := getParamsComponentMap(ghClient, defaultParamsComponentAttrs, helmChart.Template)
+	paramsComponentMap := getParamsComponentMap(ghClient, defaultParamsComponentAttrs, helmChart.Template, c.GlobalString(RefFlag))
 	generateParams(ourFS, stagingDir, paramsComponentMap, helmChart)
 }
 
