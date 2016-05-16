@@ -19,13 +19,13 @@ func TestDownloadFiles(t *testing.T) {
 	defer ts.Close()
 
 	org := "deis"
-	repo := "chart"
+	repo := "charts"
 	var opt github.RepositoryContentGetOptions
-	fileDir := "workflow-dev-e2e"
-	fileName := "README.md"
-	filePath := filepath.Join(fileDir, fileName)
+	helmChart := WorkflowE2EChart
+	helmChart.Files = []string{"README.md"}
+	filePath := filepath.Join(helmChart.Name, helmChart.Files[0])
 
-	ts.Mux.HandleFunc(fmt.Sprintf("/repos/%s/%s/contents/%s", org, repo, fileDir), func(w http.ResponseWriter, r *http.Request) {
+	ts.Mux.HandleFunc(fmt.Sprintf("/repos/%s/%s/contents/%s", org, repo, helmChart.Name), func(w http.ResponseWriter, r *http.Request) {
 		if got := r.Method; got != "GET" {
 			t.Errorf("Request method: %v, want GET", got)
 		}
@@ -33,7 +33,7 @@ func TestDownloadFiles(t *testing.T) {
 		  {
 		    "type": "file",
 		    "size": 625,
-		    "name": "` + fileName + `",
+		    "name": "` + helmChart.Files[0] + `",
 		    "path": "` + filePath + `",
 				"content": "contents",
 		    "sha": "",
@@ -50,8 +50,8 @@ func TestDownloadFiles(t *testing.T) {
 		  {
 		    "type": "dir",
 		    "size": 0,
-		    "name": "` + fileDir + `",
-		    "path": "` + fileDir + `",
+		    "name": "` + helmChart.Name + `",
+		    "path": "` + helmChart.Name + `",
 		    "sha": "",
 		    "url": "",
 		    "git_url": "",
@@ -67,11 +67,11 @@ func TestDownloadFiles(t *testing.T) {
 		fmt.Fprintf(w, resp)
 	})
 
-	got, err := downloadFiles(ts.Client, org, repo, &opt, []string{filePath})
+	got, err := downloadFiles(ts.Client, org, repo, &opt, helmChart)
 
 	assert.NoErr(t, err)
 	assert.Equal(t, len(got), 1, "length of downloaded file slice")
-	assert.Equal(t, got[0].FileName, filePath, "file name")
+	assert.Equal(t, got[0].FileName, helmChart.Files[0], "file name")
 }
 
 func TestDownloadFilesNotExist(t *testing.T) {
@@ -79,13 +79,12 @@ func TestDownloadFilesNotExist(t *testing.T) {
 	defer ts.Close()
 
 	org := "deis"
-	repo := "chart"
+	repo := "charts"
 	var opt github.RepositoryContentGetOptions
-	fileDir := "workflow-dev-e2e"
-	fileName := "NotExist.md"
-	filePath := filepath.Join(fileDir, fileName)
+	helmChart := WorkflowE2EChart
+	helmChart.Files = []string{"NotExist.md"}
 
-	ts.Mux.HandleFunc(fmt.Sprintf("/repos/%s/%s/contents/%s", org, repo, fileDir), func(w http.ResponseWriter, r *http.Request) {
+	ts.Mux.HandleFunc(fmt.Sprintf("/repos/%s/%s/contents/%s", org, repo, helmChart.Name), func(w http.ResponseWriter, r *http.Request) {
 		if got := r.Method; got != "GET" {
 			t.Errorf("Request method: %v, want GET", got)
 		}
@@ -93,8 +92,8 @@ func TestDownloadFilesNotExist(t *testing.T) {
 		  {
 		    "type": "dir",
 		    "size": 0,
-		    "name": "` + fileDir + `",
-		    "path": "` + fileDir + `",
+				"name": "` + helmChart.Name + `",
+		    "path": "` + helmChart.Name + `",
 		    "sha": "",
 		    "url": "",
 		    "git_url": "",
@@ -110,7 +109,7 @@ func TestDownloadFilesNotExist(t *testing.T) {
 		fmt.Fprintf(w, resp)
 	})
 
-	got, err := downloadFiles(ts.Client, org, repo, &opt, []string{filePath})
+	got, err := downloadFiles(ts.Client, org, repo, &opt, helmChart)
 
 	assert.ExistsErr(t, err, "file doesn't exist")
 	assert.Nil(t, got, "downloaded files slice")
@@ -127,12 +126,8 @@ func TestStageFiles(t *testing.T) {
 	fakeFileSys.MkdirAll(stagingDir, os.ModePerm)
 	stageFiles(fakeFileSys, []ghFile{ghFileToStage}, stagingDir)
 
-	assert.Equal(t,
-		fakeFileSys.Files,
-		map[string]*bytes.Buffer{
-			stagingDir:                          &bytes.Buffer{},
-			filepath.Join(stagingDir, fileName): &bytes.Buffer{}},
-		"file system contents")
+	_, err := fakeFileSys.ReadFile(filepath.Join(stagingDir, fileName))
+	assert.NoErr(t, err)
 }
 
 func TestCreateDir(t *testing.T) {

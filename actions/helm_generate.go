@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
+
+	"github.com/google/go-github/github"
 )
 
 type nopWriteCloser struct {
@@ -22,20 +24,51 @@ func NopWriteCloser(w io.Writer) io.WriteCloser {
 	return nopWriteCloser{w}
 }
 
-func generateParams(stage bool, fs fileSys, whereTo string, paramsComponentMap genParamsComponentMap, template *template.Template) error {
-	var executeTo = NopWriteCloser(os.Stdout)
-	if stage {
-		defer executeTo.Close()
-		var err error
-		executeTo, err = executeToStaging(fs, filepath.Join(whereTo, "tpl"))
-		if err != nil {
-			log.Fatalf("Error creating staging file (%s)", err)
-		}
+func generateParams(fs fileSys, whereTo string, paramsComponentMap genParamsComponentMap, helmChart helmChart) error {
+	executeTo, err := executeToStaging(fs, filepath.Join(whereTo, "tpl"))
+	if err != nil {
+		log.Fatalf("Error creating staging file (%s)", err)
 	}
-	return template.Execute(executeTo, paramsComponentMap)
+	defer executeTo.Close()
+
+	return helmChart.Template.Execute(executeTo, paramsComponentMap)
 }
 
 func executeToStaging(fs fileSys, stagingSubDir string) (io.WriteCloser, error) {
 	fs.MkdirAll(stagingSubDir, os.ModePerm)
 	return fs.Create(filepath.Join(stagingSubDir, generateParamsFileName))
+}
+
+func getParamsComponentMap(ghClient *github.Client, defaultParamsComponentAttrs genParamsComponentAttrs, template *template.Template) genParamsComponentMap {
+	paramsComponentMap := createParamsComponentMap()
+
+	if template == generateParamsE2ETpl {
+		repoNames = []string{"workflow-e2e"}
+		componentNames = []string{"WorkflowE2E"}
+	}
+	for _, componentName := range componentNames {
+		paramsComponentMap[componentName] = defaultParamsComponentAttrs
+	}
+
+	if defaultParamsComponentAttrs.Tag == "" {
+		// gather latest sha for each repo via GitHub api
+		reposAndShas, err := getShas(ghClient, repoNames, shortShaTransform)
+		if err != nil {
+			log.Fatalf("No tag given and couldn't fetch sha from GitHub (%s)", err)
+		} else if len(reposAndShas) < 1 {
+			log.Fatalf("No tag given and no shas returned from GitHub for %s", defaultParamsComponentAttrs.Org)
+		}
+
+		// a given repo may track multiple components; update each component Tag accordingly
+		for _, repoAndSha := range reposAndShas {
+			repoComponentNames := repoToComponentNames[repoAndSha.repoName]
+			paramsComponentAttrs := defaultParamsComponentAttrs
+			for _, componentName := range repoComponentNames {
+				paramsComponentAttrs.Tag = "git-" + repoAndSha.sha
+				paramsComponentMap[componentName] = paramsComponentAttrs
+			}
+		}
+	}
+
+	return paramsComponentMap
 }

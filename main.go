@@ -78,7 +78,7 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name: "helm-params",
+			Name: "helm-stage",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  actions.TagFlag,
@@ -95,25 +95,6 @@ func main() {
 					Value: "deisci",
 					Usage: "The docker repository organization to set on each image",
 				},
-				cli.BoolFlag{
-					Name:  actions.StageFlag,
-					Usage: "If set, will stage generated file(s) into staging",
-				},
-			},
-			Subcommands: []cli.Command{
-				cli.Command{
-					Name:   "e2e",
-					Action: actions.HelmGenerateE2E(ghClient),
-				},
-				cli.Command{
-					Name:   "workflow",
-					Action: actions.HelmGenerateWorkflow(ghClient),
-				},
-			},
-		},
-		cli.Command{
-			Name: "helm-stage",
-			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  actions.RepoFlag,
 					Value: "charts",
@@ -129,17 +110,22 @@ func main() {
 					Value: "deis",
 					Usage: "The GitHub org to find repo in",
 				},
+				cli.StringFlag{
+					Name:  actions.StagingDirFlag,
+					Value: "",
+					Usage: "The location to stage chart files",
+				},
 			},
 			Subcommands: []cli.Command{
 				cli.Command{
 					Name:        "e2e",
 					Action:      actions.HelmStageE2E(ghClient),
-					Description: "Stages workflow-dev-e2e into staging, amending with $WORKFLOW_RELEASE_SHORT if defined",
+					Description: "Stages workflow-dev-e2e, amending with $WORKFLOW_RELEASE_SHORT if defined",
 				},
 				cli.Command{
 					Name:        "workflow",
 					Action:      actions.HelmStageWorkflow(ghClient),
-					Description: "Stages workflow-dev into staging, amending with $WORKFLOW_RELEASE_SHORT if defined",
+					Description: "Stages workflow-dev, amending with $WORKFLOW_RELEASE_SHORT if defined",
 				},
 			},
 			Description: `Stages chart files into staging.

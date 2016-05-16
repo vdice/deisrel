@@ -20,31 +20,40 @@ var (
 	ourFP = getRealFilePath()
 )
 
-const (
-	// RepoFlag represents the '-repo' flag
-	RepoFlag = "repo"
-	// RefFlag represents the '-ref' flag (for specifying a SHA, branch or tag)
-	RefFlag = "ref"
-	// GHOrgFlag represents the '-ghOrg' flag
-	GHOrgFlag = "ghOrg"
-)
-
-func helmStage(ghClient *github.Client, c *cli.Context, fileNames []string, stagingSubDir string) {
+func helmStage(ghClient *github.Client, c *cli.Context, helmChart helmChart) {
 	var opt github.RepositoryContentGetOptions
 	opt.Ref = c.GlobalString(RefFlag)
 	org := c.GlobalString(GHOrgFlag)
 	repo := c.GlobalString(RepoFlag)
+	stagingDir := c.GlobalString(StagingDirFlag)
 
-	ghFiles, err := downloadFiles(ghClient, org, repo, &opt, fileNames)
-	if err != nil {
-		log.Fatalf("Error downloading contents of %v (%s)", fileNames, err)
+	if stagingDir == "" {
+		stagingDir = filepath.Join(defaultStagingPath, helmChart.Name)
+	}
+	// create stagingDir and 'tpl' subdir for staging files
+	if err := createDir(ourFS, filepath.Join(stagingDir, "tpl")); err != nil {
+		log.Fatalf("Error creating dir %s (%s)", filepath.Join(stagingDir, "tpl"), err)
 	}
 
-	stageFiles(ourFS, ghFiles, stagingPath)
+	// gather helmChart.Files from GitHub needing release string updates
+	ghFiles, err := downloadFiles(ghClient, org, repo, &opt, helmChart)
+	if err != nil {
+		log.Fatalf("Error downloading contents of %v (%s)", helmChart.Files, err)
+	}
+	stageFiles(ourFS, ghFiles, stagingDir)
 
-	if err := updateFilesWithRelease(ourFP, ourFS, deisRelease, stagingSubDir); err != nil {
+	if err := updateFilesWithRelease(ourFP, ourFS, deisRelease, stagingDir); err != nil {
 		log.Fatalf("Error updating files with release '%s' (%s)", deisRelease.Short, err)
 	}
+
+	// stage 'tpl/generate_params.toml' with latest git shas for each component
+	defaultParamsComponentAttrs := genParamsComponentAttrs{
+		Org:        c.GlobalString(OrgFlag),
+		PullPolicy: c.GlobalString(PullPolicyFlag),
+		Tag:        c.GlobalString(TagFlag),
+	}
+	paramsComponentMap := getParamsComponentMap(ghClient, defaultParamsComponentAttrs, helmChart.Template)
+	generateParams(ourFS, stagingDir, paramsComponentMap, helmChart)
 }
 
 func createDir(fs fileSys, dirName string) error {
@@ -59,10 +68,11 @@ func createDir(fs fileSys, dirName string) error {
 	return nil
 }
 
-func downloadFiles(ghClient *github.Client, org, repo string, opt *github.RepositoryContentGetOptions, fileNames []string) ([]ghFile, error) {
-	ret := make([]ghFile, 0, len(fileNames))
-	for _, fileName := range fileNames {
-		readCloser, err := downloadContents(ghClient, org, repo, fileName, opt)
+func downloadFiles(ghClient *github.Client, org, repo string, opt *github.RepositoryContentGetOptions, helmChart helmChart) ([]ghFile, error) {
+	ret := make([]ghFile, 0, len(helmChart.Files))
+	for _, fileName := range helmChart.Files {
+		relativeFilePath := filepath.Join(helmChart.Name, fileName)
+		readCloser, err := downloadContents(ghClient, org, repo, relativeFilePath, opt)
 		if err != nil {
 			return nil, err
 		}
