@@ -59,9 +59,28 @@ var (
 		"slugbuilder":      {"SlugBuilder"},
 		"slugrunner":       {"SlugRunner"},
 		"stdout-metrics":   {"StdoutMetrics"},
-		"workflow":         {"Workflow"},
 		"workflow-e2e":     {"WorkflowE2E"},
 		"workflow-manager": {"WorkflowManager"},
+	}
+
+	componentToImageName = map[string]string{
+		"Builder":         "builder",
+		"Controller":      "controller",
+		"DockerBuilder":   "dockerbuilder",
+		"FluentD":         "fluentd",
+		"InfluxDB":        "influxdb",
+		"Grafana":         "grafana",
+		"Telegraf":        "telegraf",
+		"Logger":          "logger",
+		"Minio":           "minio",
+		"Database":        "postgres",
+		"Registry":        "registry",
+		"Router":          "router",
+		"SlugBuilder":     "slugbuilder",
+		"SlugRunner":      "slugrunner",
+		"StdoutMetrics":   "stdout-metrics",
+		"WorkflowE2E":     "workflow-e2e",
+		"WorkflowManager": "workflow-manager",
 	}
 
 	repoNames      = getRepoNames(repoToComponentNames)
