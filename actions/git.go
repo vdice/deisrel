@@ -20,6 +20,7 @@ type repoAndSha struct {
 
 func noTransform(s string) string       { return s }
 func shortShaTransform(s string) string { return s[:7] }
+func quayTagTransform(s string) string  { return fmt.Sprintf("git-%s", shortShaTransform(s)) }
 
 func getShas(ghClient *github.Client, repos []string, transform func(string) string, ref string) ([]repoAndSha, error) {
 	outCh := make(chan repoAndSha)

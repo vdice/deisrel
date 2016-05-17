@@ -12,6 +12,7 @@ import (
 
 const (
 	tokenEnvVarName = "GITHUB_ACCESS_TOKEN"
+	// quayTokenEnvVarName = "QUAY_AUTH_TOKEN"
 )
 
 var version = "0.0.0"
@@ -30,6 +31,22 @@ func main() {
 	app.Usage = "Utilities for releasing a new Deis version"
 	app.Version = version
 	app.Commands = []cli.Command{
+		cli.Command{
+			Name: "docker",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "retag",
+					Action: actions.DockerRetag(ghClient),
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  actions.RefFlag,
+							Value: "master",
+							Usage: "Optional ref to add to GitHub repo request (can be SHA, branch or tag)",
+						},
+					},
+				},
+			},
+		},
 		cli.Command{
 			Name: "git",
 			Subcommands: []cli.Command{
