@@ -2,6 +2,7 @@ package git
 
 import (
 	"errors"
+	"fmt"
 )
 
 var (
@@ -18,4 +19,20 @@ func ShortSHATransform(s string) (string, error) {
 		return "", ErrSHANotLongEnough
 	}
 	return s[:7], nil
+}
+
+// ImageTagTransform returns the ShortSHATransform version of a given SHA provided in s,
+// prepended with `git-`, or error produced by ShortSHATransform
+func ImageTagTransform(s string) (string, error) {
+	shortSHATransform, err := ShortSHATransform(s)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("git-%s", shortSHATransform), nil
+}
+
+// RepoAndSha represents a (GitHub) repoName and (commit) sha pair
+type RepoAndSha struct {
+	RepoName string
+	Sha      string
 }

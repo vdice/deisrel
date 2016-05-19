@@ -7,11 +7,12 @@ import (
 	"github.com/coreos/go-quay/quay"
 	"github.com/google/go-github/github"
 
+	docker "github.com/deis/deisrel/docker"
 	reg "github.com/deis/deisrel/registry"
 )
 
-// DockerRetag is the CLI action for retagging Docker image(s)
-func DockerRetag(ghClient *github.Client) func(c *cli.Context) error {
+// DockerCheckTags is the CLI action for retagging Docker image(s)
+func DockerCheckTags(ghClient *github.Client) func(c *cli.Context) error {
 	return func(c *cli.Context) error {
 		ref := c.GlobalString(RefFlag)
 		newTag := c.Args().Get(0)
@@ -33,7 +34,7 @@ func DockerRetag(ghClient *github.Client) func(c *cli.Context) error {
 			return err
 		}
 
-		foundImgTags, errs := dockerRetag(ghClient, quay, hub, repoAndShas, ref, newTag)
+		foundImgTags, errs := docker.CheckTags(ghClient, quay, hub, repoAndShas, ref, newTag)
 		if len(errs) > 0 {
 			for _, err := range errs {
 				log.Printf("Error encountered attempting retag (%s)", err)

@@ -64,7 +64,7 @@ func getParamsComponentMap(ghClient *github.Client, defaultParamsComponentAttrs 
 			repoComponentNames := repoToComponentNames[repoAndSha.repoName]
 			paramsComponentAttrs := defaultParamsComponentAttrs
 			for _, componentName := range repoComponentNames {
-				paramsComponentAttrs.Tag = quayTagTransform(repoAndSha.sha)
+				paramsComponentAttrs.Tag = ImageTagTransform(repoAndSha.sha)
 				paramsComponentMap[componentName] = paramsComponentAttrs
 			}
 		}

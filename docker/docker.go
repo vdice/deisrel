@@ -1,4 +1,4 @@
-package actions
+package docker
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/go-github/github"
 
+	git "github.com/deis/deisrel/git"
 	reg "github.com/deis/deisrel/registry"
 )
 
@@ -15,7 +16,9 @@ const (
 	monitorImage = "monitor"
 )
 
-func dockerRetag(ghClient *github.Client, quay reg.Registry, hub reg.Registry, repoAndShas []repoAndSha, ref, newTag string) ([]string, []error) {
+// CheckTags checks that all shas provided in repoAndShas exist in tag form
+// in provided registries
+func CheckTags(ghClient *github.Client, quay reg.Registry, hub reg.Registry, repoAndShas []git.RepoAndSha, ref, newTag string) ([]string, []error) {
 	var wg sync.WaitGroup
 	done := make(chan bool)
 	resultsCh := make(chan string)
@@ -23,17 +26,21 @@ func dockerRetag(ghClient *github.Client, quay reg.Registry, hub reg.Registry, r
 	defer close(errCh)
 	for _, rs := range repoAndShas {
 		wg.Add(1)
-		go func(rs repoAndSha) {
+		go func(rs git.RepoAndSha) {
 			defer wg.Done()
 			var imgTags []reg.ImageAndTag
 
 			// a given GitHub repo may contain multiple components,
 			// each publishing images to their own quay repos
-			for _, componentName := range repoToComponentNames[rs.repoName] {
+			for _, componentName := range repoToComponentNames[rs.RepoName] {
+				tag, err := git.ImageTagTransform(rs.Sha)
+				if err != nil {
+					errCh <- err
+				}
 				imgTags = append(imgTags,
 					reg.ImageAndTag{
 						Image: fmt.Sprintf("%s/%s", ciRepoOrg, componentToImageName[componentName]),
-						Tag:   quayTagTransform(rs.sha),
+						Tag:   tag,
 					})
 			}
 			for _, imgTag := range imgTags {

@@ -36,7 +36,7 @@ func main() {
 			Subcommands: []cli.Command{
 				cli.Command{
 					Name:   "retag",
-					Action: actions.DockerRetag(ghClient),
+					Action: actions.DockerCheckTags(ghClient),
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  actions.RefFlag,

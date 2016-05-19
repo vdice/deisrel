@@ -1,4 +1,4 @@
-package actions
+package docker
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 	reg "github.com/deis/deisrel/registry"
 )
 
-func TestDockerRetag(t *testing.T) {
+func TestDockerCheckTags(t *testing.T) {
 	ts := testutil.NewTestServer()
 	defer ts.Close()
 
@@ -28,7 +28,7 @@ func TestDockerRetag(t *testing.T) {
 			repoAndSha{repoName: repo, sha: "1234abcd"})
 	}
 
-	foundImgTags, errs := dockerRetag(ts.Client, fakeQuay, fakeHub, repoAndShas, ref, newTag)
+	foundImgTags, errs := dockerCheckTags(ts.Client, fakeQuay, fakeHub, repoAndShas, ref, newTag)
 	assert.Equal(t, errs, []error{}, "errs")
 	// check against len of componentNames (common.go) as multiple components to a repo
 	assert.Equal(t, len(foundImgTags), len(componentNames), "foundImgTags length")
