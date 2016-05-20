@@ -98,6 +98,7 @@ org = "{{.WorkflowManager.Org}}"
 pullPolicy = "{{.WorkflowManager.PullPolicy}}"
 dockerTag = "{{.WorkflowManager.Tag}}"
 versionsApiURL = "https://versions.deis.com"
+doctorApiURL = "https://doctor.deis.com"
 
 [logger]
 org = "{{.Logger.Org}}"
