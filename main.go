@@ -44,6 +44,18 @@ func main() {
 						},
 					},
 				},
+				cli.Command{
+					Name:   "push-tags",
+					Action: actions.DockerPushTags(ghClient),
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							// TODO: dryRun flag
+							Name:  actions.RefFlag,
+							Value: "master",
+							Usage: "Optional ref to add to GitHub repo request (can be SHA, branch or tag)",
+						},
+					},
+				},
 			},
 		},
 		cli.Command{

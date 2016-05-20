@@ -2,7 +2,9 @@ package registry
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/arschles/assert"
@@ -65,4 +67,36 @@ func TestCheckExistenceOnQuayNotFound(t *testing.T) {
 		registry:    "quay.io",
 	}
 	assert.Err(t, expectedErr, err)
+}
+
+func TestPushTagToQuay(t *testing.T) {
+	ts := testutil.NewTestServer()
+	defer ts.Close()
+
+	orig := ImageAndTag{
+		Image: "origImage",
+		Tag:   "origTag",
+	}
+	new := ImageAndTag{
+		Image: "newImage",
+		Tag:   "newTag",
+	}
+
+	ts.Mux.HandleFunc(fmt.Sprintf("/api/v1/repository/%s/tag/%s", new.Image, new.Tag), func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Method; got != "PUT" {
+			t.Errorf("Request method: %v, want PUT", got)
+		}
+
+		defer r.Body.Close()
+		contents, err := ioutil.ReadAll(r.Body)
+		assert.NoErr(t, err)
+
+		got := strings.TrimSpace(string(contents))
+		want := fmt.Sprintf(`{"image":"%s"}`, orig.GetFullName())
+		assert.Equal(t, got, want, "request body")
+	})
+
+	fakeQuayClient := NewFakeQuayRegistry(ts)
+	err := fakeQuayClient.PushTag(orig, new)
+	assert.NoErr(t, err)
 }

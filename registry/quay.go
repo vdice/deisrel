@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/coreos/go-quay/models"
 	"github.com/coreos/go-quay/quay"
 	"github.com/coreos/go-quay/quay/tag"
 	"github.com/go-openapi/runtime"
@@ -70,5 +71,21 @@ func (q *QuayRegistry) CheckExistence(imageAndTag ImageAndTag) error {
 			return nil
 		}
 	}
+	return err
+}
+
+// PushTag is the TagPusher for QuayRegistry
+func (q *QuayRegistry) PushTag(orig ImageAndTag, new ImageAndTag) error {
+	origFullName := orig.GetFullName()
+	changeTagImageParams := &tag.ChangeTagImageParams{
+		Body:       &models.MoveTag{Image: &origFullName},
+		Repository: new.Image,
+		Tag:        new.Tag,
+	}
+
+	_, err := q.Client.Tag.ChangeTagImage(changeTagImageParams, q.Auth)
+	// if err != nil {
+	// 	return err
+	// }
 	return err
 }

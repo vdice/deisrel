@@ -1,17 +1,22 @@
 package actions
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/codegangsta/cli"
 	"github.com/google/go-github/github"
 )
 
-// DockerCheckTags is the CLI action for checking that Docker image tags
+// DockerPushTags is the CLI action for checking that Docker image tags
 // exist in registries we are interested in
-func DockerCheckTags(ghClient *github.Client) func(c *cli.Context) error {
+func DockerPushTags(ghClient *github.Client) func(c *cli.Context) error {
 	return func(c *cli.Context) error {
 		ref := c.GlobalString(RefFlag)
+		newTag := c.Args().Get(0)
+		if newTag == "" {
+			log.Fatalln("Usage: docker push-tags <new-tag>")
+		}
 
 		hub, quay, err := setupRegistries()
 		if err != nil {
@@ -24,16 +29,16 @@ func DockerCheckTags(ghClient *github.Client) func(c *cli.Context) error {
 			return err
 		}
 
-		foundImgTags, errs := dockerCheckTags(ghClient, quay, hub, repoAndShas, ref)
+		pushedImgTags, errs := dockerPushTags(ghClient, quay, hub, repoAndShas, ref, newTag)
 		if len(errs) > 0 {
 			for _, err := range errs {
-				log.Printf("Error encountered attempting checking tag (%s)", err)
+				fmt.Printf("Error encountered attempting pushing tag (%s)", err)
 			}
 		}
 
-		log.Println("Successfully found all image tags in Quay.io and DockerHub registries:")
-		for _, foundImgTag := range foundImgTags {
-			log.Println(foundImgTag)
+		fmt.Println("Successfully pushed all image tags to Quay.io and DockerHub registries:")
+		for _, pushedImgTag := range pushedImgTags {
+			fmt.Println(pushedImgTag)
 		}
 		return nil
 	}
