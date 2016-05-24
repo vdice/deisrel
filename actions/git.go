@@ -31,13 +31,14 @@ func getShas(ghClient *github.Client, repos []string, transform func(string) str
 		ch := make(chan repoAndSha)
 		ech := make(chan error)
 		go func(repo string) {
-			repoCommits, _, err := ghClient.Repositories.ListCommits("deis", repo, &github.CommitsListOptions{
+			commitsListOpts := &github.CommitsListOptions{
 				SHA: ref,
 				ListOptions: github.ListOptions{
 					Page:    1,
 					PerPage: 1,
 				},
-			})
+			}
+			repoCommits, _, err := ghClient.Repositories.ListCommits("deis", repo, commitsListOpts)
 			if err != nil {
 				ech <- fmt.Errorf("Error listing commits for repo %s (%s)", repo, err)
 				return
@@ -105,7 +106,7 @@ func GitTag(client *github.Client) func(c *cli.Context) error {
 			log.Fatal("Usage: deisrel git tag <options> <tag>")
 		}
 
-		repos, err := getShas(client, repoNames, noTransform, c.GlobalString(RefFlag))
+		repos, err := getShas(client, repoNames, noTransform, c.String(RefFlag))
 		if err != nil {
 			log.Fatal(err)
 		}
