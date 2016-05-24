@@ -61,6 +61,11 @@ func main() {
 							Value: "",
 							Usage: "the file path which to read in the shas to release",
 						},
+						cli.StringFlag{
+							Name:  actions.RefFlag,
+							Value: "master",
+							Usage: "Optional ref to add to GitHub repo request (can be SHA, branch or tag)",
+						},
 					},
 				},
 			},
