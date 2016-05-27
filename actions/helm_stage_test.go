@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/arschles/assert"
+	"github.com/arschles/sys"
 	"github.com/deis/deisrel/testutil"
 	"github.com/google/go-github/github"
 )
@@ -116,78 +117,78 @@ func TestDownloadFilesNotExist(t *testing.T) {
 }
 
 func TestStageFiles(t *testing.T) {
-	fakeFileSys := getFakeFileSys()
+	fakeFS := sys.NewFakeFS()
 
 	readCloser := ioutil.NopCloser(bytes.NewBufferString(""))
 	fileName := "testFile"
 	ghFileToStage := ghFile{ReadCloser: readCloser, FileName: fileName}
 	stagingDir := "staging"
 
-	fakeFileSys.MkdirAll(stagingDir, os.ModePerm)
-	stageFiles(fakeFileSys, []ghFile{ghFileToStage}, stagingDir)
+	fakeFS.MkdirAll(stagingDir, os.ModePerm)
+	stageFiles(fakeFS, []ghFile{ghFileToStage}, stagingDir)
 
-	_, err := fakeFileSys.ReadFile(filepath.Join(stagingDir, fileName))
+	_, err := fakeFS.ReadFile(filepath.Join(stagingDir, fileName))
 	assert.NoErr(t, err)
 }
 
 func TestCreateDir(t *testing.T) {
-	fakeFileSys := getFakeFileSys()
+	fakeFS := sys.NewFakeFS()
 
-	err := createDir(fakeFileSys, "foo")
+	err := createDir(fakeFS, "foo")
 
 	assert.NoErr(t, err)
 	assert.Equal(t,
-		fakeFileSys.Files,
+		fakeFS.Files,
 		map[string]*bytes.Buffer{"foo": &bytes.Buffer{}},
 		"file system contents")
 }
 
 func TestCreateDirAlreadyExists(t *testing.T) {
-	fakeFileSys := getFakeFileSys()
+	fakeFS := sys.NewFakeFS()
 
-	fakeFileSys.Create("foo")
-	err := createDir(fakeFileSys, "foo")
+	fakeFS.Create("foo")
+	err := createDir(fakeFS, "foo")
 
 	assert.NoErr(t, err)
 	assert.Equal(t,
-		fakeFileSys.Files,
+		fakeFS.Files,
 		map[string]*bytes.Buffer{"foo": &bytes.Buffer{}},
 		"file system contents")
 }
 
 func TestUpdateFilesWithRelease(t *testing.T) {
-	fakeFileSys := getFakeFileSys()
-	fakeFilePath := getFakeFilePath()
+	fakeFS := sys.NewFakeFS()
+	fakeFP := sys.NewFakeFP()
 
 	fileName := "foo/bar"
-	fakeFileSys.Create(fileName)
-	fakeFileSys.WriteFile(fileName, []byte("-dev"), os.ModePerm)
+	fakeFS.Create(fileName)
+	fakeFS.WriteFile(fileName, []byte("-dev"), os.ModePerm)
 	var deisRelease = releaseName{
 		Full:  "foobar",
 		Short: "bar",
 	}
-	err := updateFilesWithRelease(fakeFilePath, fakeFileSys, deisRelease, fileName)
+	err := updateFilesWithRelease(fakeFP, fakeFS, deisRelease, fileName)
 
 	assert.NoErr(t, err)
-	actualFileContents, err := fakeFileSys.ReadFile(fileName)
+	actualFileContents, err := fakeFS.ReadFile(fileName)
 	assert.NoErr(t, err)
 	assert.Equal(t, actualFileContents, []byte("-"+deisRelease.Short), "updated file")
 }
 
 func TestUpdateFilesWithReleaseWithoutRelease(t *testing.T) {
-	fakeFileSys := getFakeFileSys()
-	fakeFilePath := getFakeFilePath()
+	fakeFS := sys.NewFakeFS()
+	fakeFP := sys.NewFakeFP()
 
 	fileName := "foo/bar"
-	fakeFileSys.Create(fileName)
-	fakeFileSys.WriteFile(fileName, []byte("-dev"), os.ModePerm)
-	fakeFilePath.walkInvoked = false
+	fakeFS.Create(fileName)
+	fakeFS.WriteFile(fileName, []byte("-dev"), os.ModePerm)
+	fakeFP.walkInvoked = false
 
-	err := updateFilesWithRelease(fakeFilePath, fakeFileSys, deisRelease, fileName)
+	err := updateFilesWithRelease(fakeFP, fakeFS, deisRelease, fileName)
 	assert.NoErr(t, err)
-	assert.Equal(t, fakeFilePath.walkInvoked, false, "walk invoked")
+	assert.Equal(t, fakeFP.walkInvoked, false, "walk invoked")
 
-	actualFileContents, err := fakeFileSys.ReadFile(fileName)
+	actualFileContents, err := fakeFS.ReadFile(fileName)
 	assert.NoErr(t, err)
 	assert.Equal(t, actualFileContents, []byte("-dev"), "updated file")
 }
