@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/arschles/sys"
 	"github.com/google/go-github/github"
 )
 
@@ -24,7 +25,7 @@ func NopWriteCloser(w io.Writer) io.WriteCloser {
 	return nopWriteCloser{w}
 }
 
-func generateParams(fs fileSys, whereTo string, paramsComponentMap genParamsComponentMap, helmChart helmChart) error {
+func generateParams(fs sys.FS, whereTo string, paramsComponentMap genParamsComponentMap, helmChart helmChart) error {
 	executeTo, err := executeToStaging(fs, filepath.Join(whereTo, "tpl"))
 	if err != nil {
 		log.Fatalf("Error creating staging file (%s)", err)
@@ -34,7 +35,7 @@ func generateParams(fs fileSys, whereTo string, paramsComponentMap genParamsComp
 	return helmChart.Template.Execute(executeTo, paramsComponentMap)
 }
 
-func executeToStaging(fs fileSys, stagingSubDir string) (io.WriteCloser, error) {
+func executeToStaging(fs sys.FS, stagingSubDir string) (io.WriteCloser, error) {
 	fs.MkdirAll(stagingSubDir, os.ModePerm)
 	return fs.Create(filepath.Join(stagingSubDir, generateParamsFileName))
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/arschles/sys"
 	"github.com/codegangsta/cli"
 	"github.com/google/go-github/github"
 )
@@ -16,8 +17,8 @@ type ghFile struct {
 }
 
 var (
-	ourFS = getRealFileSys()
-	ourFP = getRealFilePath()
+	ourFS = sys.RealFS()
+	ourFP = sys.RealFP()
 )
 
 func helmStage(ghClient *github.Client, c *cli.Context, helmChart helmChart) {
@@ -56,7 +57,7 @@ func helmStage(ghClient *github.Client, c *cli.Context, helmChart helmChart) {
 	generateParams(ourFS, stagingDir, paramsComponentMap, helmChart)
 }
 
-func createDir(fs fileSys, dirName string) error {
+func createDir(fs sys.FS, dirName string) error {
 	_, err := fs.Stat(dirName)
 	if os.IsNotExist(err) {
 		if err := fs.MkdirAll(dirName, os.ModePerm); err != nil {
@@ -81,7 +82,7 @@ func downloadFiles(ghClient *github.Client, org, repo string, opt *github.Reposi
 	return ret, nil
 }
 
-func stageFiles(fs fileSys, ghFiles []ghFile, stagingDir string) {
+func stageFiles(fs sys.FS, ghFiles []ghFile, stagingDir string) {
 	for _, ghFile := range ghFiles {
 		readCloser := ghFile.ReadCloser
 
@@ -100,7 +101,7 @@ func stageFiles(fs fileSys, ghFiles []ghFile, stagingDir string) {
 	}
 }
 
-func updateFilesWithRelease(fp filePath, fs fileSys, release releaseName, walkPath string) error {
+func updateFilesWithRelease(fp sys.FP, fs sys.FS, release releaseName, walkPath string) error {
 	if release.Full == "" || release.Short == "" {
 		log.Printf("WORKFLOW_RELEASE (%s) and/or WORKFLOW_RELEASE_SHORT (%s) not provided so not amending staged files.", release.Full, release.Short)
 	} else {

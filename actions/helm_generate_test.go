@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/arschles/assert"
+	"github.com/arschles/sys"
 	"github.com/deis/deisrel/testutil"
 )
 
@@ -146,7 +147,7 @@ func testGenParamsComponentMap(t *testing.T, ts *testutil.TestServer, inputTag, 
 }
 
 func TestGenerateParamsStageWorkflow(t *testing.T) {
-	fakeFS := getFakeFileSys()
+	fakeFS := sys.NewFakeFS()
 	stagingDir := filepath.Join(defaultStagingPath, "foo")
 	defaultParamsComponentAttrs := genParamsComponentAttrs{
 		Org:        "org",
@@ -189,7 +190,7 @@ func TestGenerateParamsStageWorkflow(t *testing.T) {
 }
 
 func TestGenerateParamsStageE2E(t *testing.T) {
-	fakeFS := getFakeFileSys()
+	fakeFS := sys.NewFakeFS()
 	stagingDir := filepath.Join(defaultStagingPath, "foo")
 	defaultParamsComponentAttrs := genParamsComponentAttrs{
 		Org:        "org",
@@ -222,7 +223,7 @@ func TestGenerateParamsStageE2E(t *testing.T) {
 }
 
 func TestExecuteToStaging(t *testing.T) {
-	fakeFS := getFakeFileSys()
+	fakeFS := sys.NewFakeFS()
 	stagingDir := filepath.Join(defaultStagingPath, "foo")
 
 	_, err := executeToStaging(fakeFS, stagingDir)
