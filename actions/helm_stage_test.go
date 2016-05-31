@@ -161,7 +161,7 @@ func TestUpdateFilesWithRelease(t *testing.T) {
 
 	fileName := "foo/bar"
 	fakeFileSys.Create(fileName)
-	fakeFileSys.WriteFile(fileName, []byte("-dev"), os.ModePerm)
+	fakeFileSys.WriteFile(fileName, []byte("name: workflow-dev, version: v2-beta"), os.ModePerm)
 	var deisRelease = releaseName{
 		Full:  "foobar",
 		Short: "bar",
@@ -171,7 +171,10 @@ func TestUpdateFilesWithRelease(t *testing.T) {
 	assert.NoErr(t, err)
 	actualFileContents, err := fakeFileSys.ReadFile(fileName)
 	assert.NoErr(t, err)
-	assert.Equal(t, actualFileContents, []byte("-"+deisRelease.Short), "updated file")
+	assert.Equal(t,
+		actualFileContents,
+		[]byte(fmt.Sprintf("name: workflow-%s, version: %s", deisRelease.Short, deisRelease.Full)),
+		"updated file")
 }
 
 func TestUpdateFilesWithReleaseWithoutRelease(t *testing.T) {
@@ -180,7 +183,7 @@ func TestUpdateFilesWithReleaseWithoutRelease(t *testing.T) {
 
 	fileName := "foo/bar"
 	fakeFileSys.Create(fileName)
-	fakeFileSys.WriteFile(fileName, []byte("-dev"), os.ModePerm)
+	fakeFileSys.WriteFile(fileName, []byte("name: workflow-dev, version: v2-beta"), os.ModePerm)
 	fakeFilePath.walkInvoked = false
 
 	err := updateFilesWithRelease(fakeFilePath, fakeFileSys, deisRelease, fileName)
@@ -189,5 +192,8 @@ func TestUpdateFilesWithReleaseWithoutRelease(t *testing.T) {
 
 	actualFileContents, err := fakeFileSys.ReadFile(fileName)
 	assert.NoErr(t, err)
-	assert.Equal(t, actualFileContents, []byte("-dev"), "updated file")
+	assert.Equal(t,
+		actualFileContents,
+		[]byte("name: workflow-dev, version: v2-beta"),
+		"updated file")
 }
