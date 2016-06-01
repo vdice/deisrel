@@ -109,6 +109,7 @@ dockerTag = "{{.Logger.Tag}}"
 org = "{{.Router.Org}}"
 pullPolicy = "{{.Router.PullPolicy}}"
 dockerTag = "{{.Router.Tag}}"
+platformDomain = ""
 
 [fluentd]
 org = "{{.FluentD.Org}}"
