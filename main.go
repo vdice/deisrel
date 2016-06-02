@@ -133,6 +133,11 @@ func main() {
 					Description: "Stages workflow-dev-e2e, amending with $WORKFLOW_RELEASE_SHORT if defined",
 				},
 				cli.Command{
+					Name:        "router",
+					Action:      actions.HelmStageRouter(ghClient),
+					Description: "Stages router-dev, amending with $WORKFLOW_RELEASE_SHORT if defined",
+				},
+				cli.Command{
 					Name:        "workflow",
 					Action:      actions.HelmStageWorkflow(ghClient),
 					Description: "Stages workflow-dev, amending with $WORKFLOW_RELEASE_SHORT if defined",

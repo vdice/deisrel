@@ -71,6 +71,17 @@ var (
 	}
 	defaultStagingPath = getFullPath("staging")
 
+	// RouterChart represents the router chart and its files needing updating
+	// for a release
+	RouterChart = helmChart{
+		Name:     "router-dev",
+		Template: generateParamsRouterTpl,
+		Files: []string{
+			"README.md",
+			"Chart.yaml",
+		},
+	}
+
 	// WorkflowChart represents the workflow chart and its files needing updating
 	// for a release
 	WorkflowChart = helmChart{
