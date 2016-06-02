@@ -5,24 +5,26 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/arschles/sys"
 )
 
 type releaseWalker struct {
 	filepath.WalkFunc
-	fakeFileSys
+	sys.FakeFS
 }
 
 func getReleaseWalker() *releaseWalker {
 	return &releaseWalker{}
 }
 
-func (r *releaseWalker) handlerFunc(fs fileSys, release releaseName) filepath.WalkFunc {
+func (r *releaseWalker) handlerFunc(fs sys.FS, release releaseName) filepath.WalkFunc {
 	return func(path string, fi os.FileInfo, err error) error {
 		return r.walk(path, release, fi, err, fs)
 	}
 }
 
-func (r *releaseWalker) walk(path string, release releaseName, fi os.FileInfo, err error, fs fileSys) error {
+func (r *releaseWalker) walk(path string, release releaseName, fi os.FileInfo, err error, fs sys.FS) error {
 	if err != nil {
 		return err
 	}
