@@ -37,7 +37,7 @@ func generateChangelogVals(client *github.Client, oldTag, newTag string) ([]chan
 	valsCh := make(chan changelog.Values)
 	errCh := make(chan error)
 	defer close(errCh)
-	for _, name := range repoNames {
+	for _, name := range allGitRepoNames {
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()

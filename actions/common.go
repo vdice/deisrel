@@ -63,9 +63,19 @@ var (
 		"workflow-manager": {"WorkflowManager"},
 	}
 
-	repoNames      = getRepoNames(repoToComponentNames)
+	repoNames = getRepoNames(repoToComponentNames)
+
+	// additionalGitRepoNames represents the repo names lacking representation
+	// in any helm chart, yet still requiring updates during each Workflow
+	// release, including changelog generation and creation of git tags.
+	additionalGitRepoNames = []string{"workflow", "charts"}
+
+	// allGitRepoNames represent all GitHub repo names needing git-based updates for a release
+	allGitRepoNames = append(repoNames, additionalGitRepoNames...)
+
 	componentNames = getComponentNames(repoToComponentNames)
-	deisRelease    = releaseName{
+
+	deisRelease = releaseName{
 		Full:  os.Getenv("WORKFLOW_RELEASE"),
 		Short: os.Getenv("WORKFLOW_RELEASE_SHORT"),
 	}
