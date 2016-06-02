@@ -106,7 +106,7 @@ func GitTag(client *github.Client) func(c *cli.Context) error {
 			log.Fatal("Usage: deisrel git tag <options> <tag>")
 		}
 
-		repos, err := getShas(client, repoNames, noTransform, c.String(RefFlag))
+		repos, err := getShas(client, allGitRepoNames, noTransform, c.String(RefFlag))
 		if err != nil {
 			log.Fatal(err)
 		}
