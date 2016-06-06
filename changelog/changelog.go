@@ -5,28 +5,28 @@ import (
 )
 
 const (
-	tplStr = `{{.OldRelease}} -> {{.NewRelease}}
+	tplStr = `### {{.OldRelease}} -> {{.NewRelease}}
 
 {{ if (len .Features) gt 0 }}
-# Features
+#### Features
 
 {{range .Features}}- {{.}}
 {{end}}
 {{ end -}}
 {{ if (len .Fixes) gt 0 -}}
-# Fixes
+#### Fixes
 
 {{range .Fixes}}- {{.}}
 {{end}}
 {{ end }}
 {{ if (len .Documentation) gt 0 }}
-# Documentation
+#### Documentation
 
 {{range .Documentation}}- {{.}}
 {{end}}
 {{end}}
 {{ if (len .Maintenance) gt 0 }}
-# Maintenance
+#### Maintenance
 
 {{range .Maintenance}}- {{.}}
 {{end}}

@@ -46,7 +46,7 @@ func TestTemplate(t *testing.T) {
 				Documentation: documentation,
 				Maintenance:   maintenance,
 			},
-			missing: "# Features",
+			missing: "#### Features",
 		},
 		testCase{
 			vals: Values{
@@ -57,7 +57,7 @@ func TestTemplate(t *testing.T) {
 				Documentation: documentation,
 				Maintenance:   maintenance,
 			},
-			missing: "# Fixes",
+			missing: "#### Fixes",
 		},
 		testCase{
 			vals: Values{
@@ -68,7 +68,7 @@ func TestTemplate(t *testing.T) {
 				Documentation: nil,
 				Maintenance:   maintenance,
 			},
-			missing: "# Documentation",
+			missing: "#### Documentation",
 		},
 		testCase{
 			vals: Values{
@@ -79,7 +79,7 @@ func TestTemplate(t *testing.T) {
 				Documentation: documentation,
 				Maintenance:   nil,
 			},
-			missing: "# Maintenance",
+			missing: "#### Maintenance",
 		},
 	}
 
