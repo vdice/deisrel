@@ -87,10 +87,10 @@ func TestGenerateChangelog(t *testing.T) {
 	want := &Values{
 		OldRelease:    "b",
 		NewRelease:    "h",
-		Features:      []string{"abc1234 deisrel: new feature!"},
-		Fixes:         []string{"abc2345 deisrel: bugfix!"},
-		Documentation: []string{"abc3456 deisrel: new docs!", "abc4567 deisrel: new docs!"},
-		Maintenance:   []string{"abc5678 deisrel: boring chore"},
+		Features:      []string{"[`abc1234`](https://github.com/deis/controller/commit/abc1234567890) deisrel: new feature!"},
+		Fixes:         []string{"[`abc2345`](https://github.com/deis/controller/commit/abc2345678901) deisrel: bugfix!"},
+		Documentation: []string{"[`abc3456`](https://github.com/deis/controller/commit/abc3456789012) deisrel: new docs!", "[`abc4567`](https://github.com/deis/controller/commit/abc4567890123) deisrel: new docs!"},
+		Maintenance:   []string{"[`abc5678`](https://github.com/deis/controller/commit/abc5678901234) deisrel: boring chore"},
 	}
 
 	assert.Equal(t, got, want, "returned changelog values")
