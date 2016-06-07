@@ -162,7 +162,7 @@ func TestUpdateFilesWithRelease(t *testing.T) {
 
 	fileName := "foo/bar"
 	fakeFS.Create(fileName)
-	fakeFS.WriteFile(fileName, []byte("name: workflow-dev, version: v2-beta"), os.ModePerm)
+	fakeFS.WriteFile(fileName, []byte("name: workflow-dev, version: v2.0.0"), os.ModePerm)
 	var deisRelease = releaseName{
 		Full:  "foobar",
 		Short: "bar",
@@ -184,7 +184,7 @@ func TestUpdateFilesWithReleaseWithoutRelease(t *testing.T) {
 
 	fileName := "foo/bar"
 	fakeFS.Create(fileName)
-	fakeFS.WriteFile(fileName, []byte("name: workflow-dev, version: v2-beta"), os.ModePerm)
+	fakeFS.WriteFile(fileName, []byte("name: workflow-dev, version: v2.0.0"), os.ModePerm)
 	fakeFP.WalkInvoked = false
 
 	err := updateFilesWithRelease(fakeFP, fakeFS, deisRelease, fileName)
@@ -195,6 +195,6 @@ func TestUpdateFilesWithReleaseWithoutRelease(t *testing.T) {
 	assert.NoErr(t, err)
 	assert.Equal(t,
 		actualFileContents,
-		[]byte("name: workflow-dev, version: v2-beta"),
+		[]byte("name: workflow-dev, version: v2.0.0"),
 		"updated file")
 }
