@@ -39,7 +39,7 @@ func (r *releaseWalker) walk(path string, release releaseName, fi os.FileInfo, e
 	}
 
 	newContents := strings.Replace(string(read), "-dev", "-"+release.Short, -1)
-	newContents = strings.Replace(newContents, "v2-beta", release.Full, -1)
+	newContents = strings.Replace(newContents, "v2.0.0", release.Full, -1)
 
 	if _, err := fs.WriteFile(path, []byte(newContents), 0); err != nil {
 		log.Fatalf("Error writing contents to file %s (%s)", path, err)
