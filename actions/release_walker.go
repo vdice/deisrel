@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 
 	"github.com/arschles/sys"
 )
@@ -12,6 +12,22 @@ import (
 type releaseWalker struct {
 	filepath.WalkFunc
 	sys.FakeFS
+}
+
+// RegexReplacer is a struct containing a *regexp.Regexp representing the string
+// to replace, along with repl, the replacement string.  Modeled after strings/Replacer.
+type RegexReplacer struct {
+	regex *regexp.Regexp
+	repl  string
+}
+
+// NewRegexReplacer returns a new RegexReplacer given a src string to convert
+// to a *regexp.Regexp instance and a repl string
+func NewRegexReplacer(src string, repl string) RegexReplacer {
+	return RegexReplacer{
+		regex: regexp.MustCompile(src),
+		repl:  repl,
+	}
 }
 
 func getReleaseWalker() *releaseWalker {
@@ -38,8 +54,21 @@ func (r *releaseWalker) walk(path string, release releaseName, fi os.FileInfo, e
 		log.Fatalf("Error reading file %s (%s)", path, err)
 	}
 
-	newContents := strings.Replace(string(read), "-dev", "-"+release.Short, -1)
-	newContents = strings.Replace(newContents, "v2.0.0", release.Full, -1)
+	regexReplacers := []RegexReplacer{
+		NewRegexReplacer("-dev", "-"+release.Short),
+		NewRegexReplacer("v[0-9].[0-9].[0-9]", release.Full),
+		NewRegexReplacer("WARNING: this chart is for testing only! Features may not work and there are likely to be bugs.\n", ""),
+		NewRegexReplacer("\\s\\(For testing only!\\)", ""),
+	}
+
+	if !(release.Full == release.Short) {
+		regexReplacers = append(regexReplacers, NewRegexReplacer("v[0-9].[0-9].[0-9]-dev", release.Full+"-"+release.Short))
+	}
+
+	newContents := string(read)
+	for _, regexReplacer := range regexReplacers {
+		newContents = regexReplacer.regex.ReplaceAllString(newContents, regexReplacer.repl)
+	}
 
 	if _, err := fs.WriteFile(path, []byte(newContents), 0); err != nil {
 		log.Fatalf("Error writing contents to file %s (%s)", path, err)

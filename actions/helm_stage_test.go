@@ -163,7 +163,10 @@ func TestUpdateFilesWithRelease(t *testing.T) {
 
 	fileName := "foo/bar"
 	fakeFS.Create(fileName)
-	fakeFS.WriteFile(fileName, []byte("name: workflow-dev, version: v2.0.0"), os.ModePerm)
+	fakeFS.WriteFile(fileName,
+		[]byte("name: workflow-dev, version: v2.0.0, description: Deis Workflow (For testing only!)\n"+
+			"WARNING: this chart is for testing only! Features may not work and there are likely to be bugs.\n"),
+		os.ModePerm)
 	var deisRelease = releaseName{
 		Full:  "foobar",
 		Short: "bar",
@@ -175,7 +178,7 @@ func TestUpdateFilesWithRelease(t *testing.T) {
 	assert.NoErr(t, err)
 	assert.Equal(t,
 		actualFileContents,
-		[]byte(fmt.Sprintf("name: workflow-%s, version: %s", deisRelease.Short, deisRelease.Full)),
+		[]byte(fmt.Sprintf("name: workflow-%s, version: %s, description: Deis Workflow\n", deisRelease.Short, deisRelease.Full)),
 		"updated file")
 }
 
